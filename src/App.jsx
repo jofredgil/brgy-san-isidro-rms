@@ -194,7 +194,7 @@ export default function App() {
     const user = users.find(u => u.email === email && u.password === password);
     if (user) {
       setCurrentUser(user);
-      localStorage.setItem('brgy-app-user-id', user.id); // Persist login
+      localStorage.setItem('brgy-app-user-id', user.id); 
       const firstName = user.profile.firstName || user.profile.name.split(' ')[0] || 'User';
       showToast(`Welcome back, ${firstName.toUpperCase()}!`);
       return true;
@@ -245,7 +245,7 @@ export default function App() {
       };
       const docRef = await addDoc(usersRef, newUser);
       setCurrentUser({ id: docRef.id, ...newUser });
-      localStorage.setItem('brgy-app-user-id', docRef.id); // Persist login
+      localStorage.setItem('brgy-app-user-id', docRef.id); 
       
       showToast(`Registration successful! Welcome, ${userData.firstName.toUpperCase()}.`);
       return true;
@@ -383,216 +383,232 @@ function LandingScreen({ onLogin, onSignup, households }) {
         </div>
       </header>
 
+      {/* Main Landing Content - Always rendered to keep background intact */}
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center p-4">
-        {view === 'landing' && (
-          <div className="text-center max-w-4xl mx-auto w-full animate-in fade-in zoom-in-95 duration-500">
-            <div className="inline-block px-4 py-1.5 rounded-full border border-blue-400/30 bg-blue-500/20 backdrop-blur-md text-blue-50 text-xs font-bold tracking-[0.2em] uppercase mb-8 shadow-sm">
-              Records Management System
-            </div>
-            <h2 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white mb-3 drop-shadow-xl tracking-tight">
-              {BRANDING.appName.replace(' RMS', '')}
-            </h2>
-            <h3 className="text-2xl md:text-4xl lg:text-5xl font-bold text-blue-100 mb-8 drop-shadow-lg">
-              Official Records Portal
-            </h3>
-            <p className="text-blue-50/90 text-lg md:text-xl max-w-2xl mx-auto mb-12 drop-shadow leading-relaxed font-medium">
-              Serving the residents of {BRANDING.appName.replace(' RMS', '')}, {BRANDING.appLocation}. <br className="hidden md:block"/>
-              Secure, digital, and always accessible.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:hidden">
-              <button onClick={() => { resetForm(); setView('register'); }} className="cursor-pointer w-full flex items-center justify-center px-8 py-4 bg-white text-blue-900 font-bold rounded-xl hover:bg-blue-50 transition-colors shadow-xl">
-                <UserPlus className="w-5 h-5 mr-2" /> Register as Resident
-              </button>
-              <button onClick={() => { resetForm(); setView('login'); }} className="cursor-pointer w-full flex items-center justify-center px-8 py-4 bg-blue-600/40 hover:bg-blue-600/60 text-white border border-blue-300/30 backdrop-blur-md font-bold rounded-xl transition-colors shadow-xl">
-                <Key className="w-5 h-5 mr-2" /> Sign In
-              </button>
-            </div>
+        <div className="text-center max-w-4xl mx-auto w-full animate-in fade-in zoom-in-95 duration-500">
+          <div className="inline-block px-4 py-1.5 rounded-full border border-blue-400/30 bg-blue-500/20 backdrop-blur-md text-blue-50 text-xs font-bold tracking-[0.2em] uppercase mb-8 shadow-sm">
+            Records Management System
           </div>
-        )}
-
-        {view !== 'landing' && (
-          <div className="w-full max-w-lg animate-in slide-in-from-bottom-8 fade-in duration-300">
-            <button onClick={() => setView('landing')} className="cursor-pointer mb-6 flex items-center text-blue-100 hover:text-white transition-colors text-sm font-medium drop-shadow-md">
-              <ArrowLeft className="w-4 h-4 mr-1" /> Back to Home
+          <h2 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white mb-3 drop-shadow-xl tracking-tight">
+            {BRANDING.appName.replace(' RMS', '')}
+          </h2>
+          <h3 className="text-2xl md:text-4xl lg:text-5xl font-bold text-blue-100 mb-8 drop-shadow-lg">
+            Official Records Portal
+          </h3>
+          <p className="text-blue-50/90 text-lg md:text-xl max-w-2xl mx-auto mb-12 drop-shadow leading-relaxed font-medium">
+            Serving the residents of {BRANDING.appName.replace(' RMS', '')}, {BRANDING.appLocation}. <br className="hidden md:block"/>
+            Secure, digital, and always accessible.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:hidden">
+            <button onClick={() => { resetForm(); setView('register'); }} className="cursor-pointer w-full flex items-center justify-center px-8 py-4 bg-white text-blue-900 font-bold rounded-xl hover:bg-blue-50 transition-colors shadow-xl">
+              <UserPlus className="w-5 h-5 mr-2" /> Register as Resident
             </button>
-            
-            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-blue-100">
-              <div className="bg-blue-600 p-6 text-center text-white relative">
-                <Shield className="w-10 h-10 mx-auto mb-3 opacity-90" />
-                <h2 className="text-xl font-bold tracking-wide">{view === 'login' ? 'Sign In to Portal' : 'Resident Registration'}</h2>
-              </div>
-
-              <div className="p-6 md:p-8">
-                {error && (
-                  <div className="mb-6 p-3.5 bg-red-50 text-red-700 border border-red-200 text-sm rounded-xl flex items-start">
-                    <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" /> {error}
-                  </div>
-                )}
-
-                <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
-                  {view === 'register' && (
-                    <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                      
-                      {/* Image Uploader */}
-                      <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer relative group">
-                        {profileImage ? (
-                          <img src={profileImage} alt="Profile Preview" className="w-20 h-20 rounded-full object-cover scale-110 border-4 border-white shadow-md group-hover:opacity-80 transition-opacity" />
-                        ) : (
-                          <div className="w-20 h-20 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 mb-2 shadow-inner group-hover:bg-slate-300 transition-colors">
-                            <Camera className="w-8 h-8" />
-                          </div>
-                        )}
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-2">Select Profile Picture</span>
-                        <input type="file" accept="image/*" onChange={(e) => handleImageResize(e.target.files[0], setProfileImage)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">First Name <span className="text-red-500">*</span></label>
-                          <input required type="text" value={firstName} onChange={e => setFirstName(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white" placeholder="Juan" />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Middle Name</label>
-                          <input type="text" value={middleName} onChange={e => setMiddleName(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white" placeholder="Reyes" />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Last Name <span className="text-red-500">*</span></label>
-                          <input required type="text" value={lastName} onChange={e => setLastName(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white" placeholder="Dela Cruz" />
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Date of Birth</label>
-                          <input required type="date" value={dateOfBirth} onChange={e => setDateOfBirth(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-slate-700 transition-colors hover:bg-white" />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Place of Birth</label>
-                          <input required type="text" value={placeOfBirth} onChange={e => setPlaceOfBirth(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white" placeholder="City, Province" />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Age</label>
-                          <input required type="number" min="0" value={age} onChange={e => setAge(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white" />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Gender</label>
-                          <select value={gender} onChange={e => setGender(e.target.value)} className="cursor-pointer w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white">
-                            <option>Male</option><option>Female</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Nationality</label>
-                          <input required type="text" value={nationality} onChange={e => setNationality(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white" placeholder="Filipino" />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Religion</label>
-                          <input required type="text" value={religion} onChange={e => setReligion(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white" placeholder="Roman Catholic" />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Contact Number</label>
-                          <input type="tel" value={contactNumber} onChange={e => setContactNumber(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white" placeholder="09XX..." />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Educational Attainment</label>
-                          <select value={educationalAttainment} onChange={e => setEducationalAttainment(e.target.value)} className="cursor-pointer w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-colors hover:bg-white">
-                            <option value="">Select...</option>
-                            <option>Elementary Level</option><option>Elementary Graduate</option>
-                            <option>High School Level</option><option>High School Graduate</option>
-                            <option>College Level</option><option>College Graduate</option>
-                            <option>Vocational</option><option>Post-Graduate</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Occupation</label>
-                        <input type="text" value={occupation} onChange={e => setOccupation(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white" placeholder="E.g. Farmer, Teacher, None" />
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="sm:col-span-2">
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Home Address (House/Street) <span className="text-red-500">*</span></label>
-                          <input required type="text" value={homeAddress} onChange={e => setHomeAddress(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white" placeholder="e.g. Block 1, Lot 2" />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Purok / Sitio <span className="text-red-500">*</span></label>
-                          <div className="relative">
-                            <MapPin className="w-5 h-5 text-slate-400 absolute left-3.5 top-3" />
-                            <select required value={address} onChange={e => setAddress(e.target.value)} className="cursor-pointer w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none appearance-none transition-colors hover:bg-white">
-                              {PUROKS.map(p => <option key={p} value={`Purok ${p}`}>Purok {p}</option>)}
-                            </select>
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Assign Household</label>
-                          <select value={householdId} onChange={e => setHouseholdId(e.target.value)} className="cursor-pointer w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-colors hover:bg-white">
-                            <option value="">None / Not listed</option>
-                            {households.map(hh => <option key={hh.id} value={hh.id}>{hh.hhNumber} - {hh.headName}</option>)}
-                          </select>
-                        </div>
-                        <div className="sm:col-span-2">
-                          <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">I am a Household Head?</label>
-                          <select value={isHouseholdHead} onChange={e => setIsHouseholdHead(e.target.value)} className="cursor-pointer w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm font-bold transition-colors hover:bg-white">
-                            <option value="false">No</option><option value="true">Yes</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-3">
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 text-center">Voter?</label>
-                          <select value={isVoter} onChange={e => setIsVoter(e.target.value)} className="cursor-pointer w-full px-2 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-center text-sm transition-colors hover:bg-white">
-                            <option value="true">Yes</option><option value="false">No</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 text-center">PWD?</label>
-                          <select value={isPwd} onChange={e => setIsPwd(e.target.value)} className="cursor-pointer w-full px-2 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-center text-sm transition-colors hover:bg-white">
-                            <option value="false">No</option><option value="true">Yes</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 text-center">4Ps?</label>
-                          <select value={is4ps} onChange={e => setIs4ps(e.target.value)} className="cursor-pointer w-full px-2 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-center text-sm transition-colors hover:bg-white">
-                            <option value="false">No</option><option value="true">Yes</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-4 pt-2">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email Address</label>
-                      <input required type="email" value={email} onChange={e => setEmail(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white" autoComplete="off" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Password</label>
-                      <input required type="password" value={password} onChange={e => setPassword(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white" autoComplete="new-password" />
-                    </div>
-                  </div>
-
-                  <button disabled={isLoading} type="submit" className="cursor-pointer w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-70 text-white font-bold py-3.5 px-4 rounded-xl transition-all duration-200 mt-6 shadow-md shadow-blue-500/20 flex justify-center items-center hover:-translate-y-0.5">
-                    {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : (view === 'login' ? 'Secure Sign In' : 'Complete Registration')}
-                  </button>
-                </form>
-              </div>
-            </div>
+            <button onClick={() => { resetForm(); setView('login'); }} className="cursor-pointer w-full flex items-center justify-center px-8 py-4 bg-blue-600/40 hover:bg-blue-600/60 text-white border border-blue-300/30 backdrop-blur-md font-bold rounded-xl transition-colors shadow-xl">
+              <Key className="w-5 h-5 mr-2" /> Sign In
+            </button>
           </div>
-        )}
+        </div>
       </main>
+
       <footer className="relative z-10 w-full p-6 text-center">
         <p className="text-blue-300/50 text-xs font-medium tracking-wide">© {new Date().getFullYear()} {BRANDING.appName}, {BRANDING.appLocation}. All rights reserved.</p>
       </footer>
+
+      {/* --- POP-UP MODAL FOR LOGIN / REGISTER --- */}
+      {view !== 'landing' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200/50 relative animate-in zoom-in-95 duration-300 slide-in-from-bottom-8 flex flex-col max-h-[90vh]">
+            
+            {/* Close Button */}
+            <button onClick={() => setView('landing')} className="absolute top-4 right-4 z-20 text-white/70 hover:text-white bg-black/20 hover:bg-black/40 rounded-full p-1.5 transition-colors cursor-pointer">
+              <X className="w-5 h-5" />
+            </button>
+            
+            {/* Dark Blue Gradient Header */}
+            <div className="bg-gradient-to-br from-slate-900 via-blue-900 to-blue-700 p-6 md:p-8 text-center text-white relative shrink-0">
+              <Shield className="w-12 h-12 mx-auto mb-4 text-blue-200 drop-shadow-md" />
+              {view === 'login' ? (
+                <>
+                  <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white drop-shadow-md">Welcome Back!</h2>
+                  <p className="text-blue-200 text-sm mt-1.5 font-medium drop-shadow-sm">Please login with your personal info</p>
+                </>
+              ) : (
+                <>
+                  <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white drop-shadow-md">Resident Registration</h2>
+                  <p className="text-blue-200 text-sm mt-1.5 font-medium drop-shadow-sm">Create your official digital record</p>
+                </>
+              )}
+            </div>
+
+            {/* Form Body */}
+            <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 bg-white">
+              {error && (
+                <div className="mb-6 p-3.5 bg-red-50 text-red-700 border border-red-200 text-sm rounded-xl flex items-start">
+                  <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" /> {error}
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
+                {view === 'register' && (
+                  <div className="space-y-5">
+                    
+                    {/* Image Uploader */}
+                    <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer relative group">
+                      {profileImage ? (
+                        <img src={profileImage} alt="Profile Preview" className="w-20 h-20 rounded-full object-cover scale-110 border-4 border-white shadow-md group-hover:opacity-80 transition-opacity" />
+                      ) : (
+                        <div className="w-20 h-20 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 mb-2 shadow-inner group-hover:bg-slate-300 transition-colors">
+                          <Camera className="w-8 h-8" />
+                        </div>
+                      )}
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-2">Select Profile Picture</span>
+                      <input type="file" accept="image/*" onChange={(e) => handleImageResize(e.target.files[0], setProfileImage)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">First Name <span className="text-red-500">*</span></label>
+                        <input required type="text" value={firstName} onChange={e => setFirstName(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white text-sm" placeholder="Juan" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Middle Name</label>
+                        <input type="text" value={middleName} onChange={e => setMiddleName(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white text-sm" placeholder="Reyes" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Last Name <span className="text-red-500">*</span></label>
+                        <input required type="text" value={lastName} onChange={e => setLastName(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white text-sm" placeholder="Dela Cruz" />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Date of Birth</label>
+                        <input required type="date" value={dateOfBirth} onChange={e => setDateOfBirth(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-slate-700 transition-colors hover:bg-white text-sm" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Place of Birth</label>
+                        <input required type="text" value={placeOfBirth} onChange={e => setPlaceOfBirth(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white text-sm" placeholder="City, Province" />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Age</label>
+                        <input required type="number" min="0" value={age} onChange={e => setAge(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white text-sm" placeholder="0" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Gender</label>
+                        <select value={gender} onChange={e => setGender(e.target.value)} className="cursor-pointer w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white text-sm">
+                          <option>Male</option><option>Female</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Nationality</label>
+                        <input required type="text" value={nationality} onChange={e => setNationality(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white text-sm" placeholder="Filipino" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Religion</label>
+                        <input required type="text" value={religion} onChange={e => setReligion(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white text-sm" placeholder="Roman Catholic" />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Contact Number</label>
+                        <input type="tel" value={contactNumber} onChange={e => setContactNumber(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white text-sm" placeholder="09XX..." />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Educational Attainment</label>
+                        <select value={educationalAttainment} onChange={e => setEducationalAttainment(e.target.value)} className="cursor-pointer w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-colors hover:bg-white">
+                          <option value="">Select...</option>
+                          <option>Elementary Level</option><option>Elementary Graduate</option>
+                          <option>High School Level</option><option>High School Graduate</option>
+                          <option>College Level</option><option>College Graduate</option>
+                          <option>Vocational</option><option>Post-Graduate</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Occupation</label>
+                      <input type="text" value={occupation} onChange={e => setOccupation(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white text-sm" placeholder="E.g. Farmer, Teacher, None" />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+                      <div className="sm:col-span-2">
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Home Address (House/Street) <span className="text-red-500">*</span></label>
+                        <input required type="text" value={homeAddress} onChange={e => setHomeAddress(e.target.value)} className="cursor-text w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white text-sm" placeholder="e.g. Block 1, Lot 2" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Purok / Sitio <span className="text-red-500">*</span></label>
+                        <div className="relative">
+                          <MapPin className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                          <select required value={address} onChange={e => setAddress(e.target.value)} className="cursor-pointer w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none appearance-none transition-colors hover:bg-white text-sm">
+                            {PUROKS.map(p => <option key={p} value={`Purok ${p}`}>Purok {p}</option>)}
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Assign Household</label>
+                        <select value={householdId} onChange={e => setHouseholdId(e.target.value)} className="cursor-pointer w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-colors hover:bg-white">
+                          <option value="">None / Not listed</option>
+                          {households.map(hh => <option key={hh.id} value={hh.id}>{hh.hhNumber} - {hh.headName}</option>)}
+                        </select>
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">I am a Household Head?</label>
+                        <select value={isHouseholdHead} onChange={e => setIsHouseholdHead(e.target.value)} className="cursor-pointer w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm font-bold transition-colors hover:bg-white">
+                          <option value="false">No, I am a Member</option><option value="true">Yes, I am the Head</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-3 pt-4 border-t border-slate-100">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 text-center">Voter?</label>
+                        <select value={isVoter} onChange={e => setIsVoter(e.target.value)} className="cursor-pointer w-full px-2 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-center text-sm transition-colors hover:bg-white">
+                          <option value="true">Yes</option><option value="false">No</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 text-center">PWD?</label>
+                        <select value={isPwd} onChange={e => setIsPwd(e.target.value)} className="cursor-pointer w-full px-2 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-center text-sm transition-colors hover:bg-white">
+                          <option value="false">No</option><option value="true">Yes</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 text-center">4Ps?</label>
+                        <select value={is4ps} onChange={e => setIs4ps(e.target.value)} className="cursor-pointer w-full px-2 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-center text-sm transition-colors hover:bg-white">
+                          <option value="false">No</option><option value="true">Yes</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Account Credentials with Floating Labels */}
+                <div className="space-y-4 pt-2">
+                  <div className="relative">
+                    <input required type="email" id="email-input" value={email} onChange={e => setEmail(e.target.value)} className="block w-full px-4 pt-6 pb-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white text-sm font-medium peer cursor-text" placeholder=" " autoComplete="off" />
+                    <label htmlFor="email-input" className="absolute text-slate-500 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 font-bold text-xs uppercase tracking-wider cursor-text pointer-events-none">Email Address <span className="text-red-500">*</span></label>
+                  </div>
+                  <div className="relative">
+                    <input required type="password" id="password-input" value={password} onChange={e => setPassword(e.target.value)} className="block w-full px-4 pt-6 pb-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-colors hover:bg-white text-sm font-medium peer cursor-text" placeholder=" " autoComplete="new-password" />
+                    <label htmlFor="password-input" className="absolute text-slate-500 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 font-bold text-xs uppercase tracking-wider cursor-text pointer-events-none">Password <span className="text-red-500">*</span></label>
+                  </div>
+                </div>
+
+                <button disabled={isLoading} type="submit" className="cursor-pointer w-full bg-gradient-to-r from-blue-700 to-blue-500 hover:from-blue-800 hover:to-blue-600 disabled:opacity-70 text-white font-bold py-3.5 px-4 rounded-xl transition-all duration-200 mt-6 shadow-md shadow-blue-500/30 flex justify-center items-center hover:-translate-y-0.5">
+                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : (view === 'login' ? 'Secure Sign In' : 'Complete Registration')}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -921,12 +937,12 @@ function AdminDashboard({ users, requests, households, officials, onLogout, show
       )}
 
       {/* --- NEW COLLAPSING SMART SIDEBAR --- */}
-      <div className={`peer fixed inset-y-0 left-0 z-50 bg-[#0f172a]/95 backdrop-blur-md text-slate-300 shadow-2xl transition-all duration-200 ease-in-out flex flex-col group overflow-x-hidden ${isMobileMenuOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64'} md:translate-x-0 md:w-20 md:hover:w-64`}>
+      <div className={`peer fixed inset-y-0 left-0 z-50 bg-[#0f172a]/95 backdrop-blur-md text-slate-300 shadow-2xl transition-[width] duration-200 ease-in-out flex flex-col group overflow-x-hidden ${isMobileMenuOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64'} md:translate-x-0 md:w-20 md:hover:w-64`}>
         
         {/* Sidebar Header / Logos */}
         <div className="h-20 flex items-center pl-[18px] border-b border-slate-800 flex-shrink-0 overflow-hidden cursor-pointer hover:bg-slate-800/50 transition-colors" onClick={() => {setActiveTab('dashboard'); setIsMobileMenuOpen(false);}}>
           <div className="flex items-center space-x-[-12px] flex-shrink-0 pr-1">
-            <div className={`w-11 h-11 bg-white rounded-full items-center justify-center shadow-lg border-2 border-[#0f172a] z-10 overflow-hidden shrink-0 flex md:hidden md:group-hover:flex`}>
+            <div className={`w-11 h-11 bg-white rounded-full items-center justify-center shadow-lg border-2 border-[#0f172a] hidden group-hover:flex z-10 overflow-hidden shrink-0`}>
               {BRANDING.logo1 ? <img src={BRANDING.logo1} alt="Logo 1" className="w-full h-full object-cover scale-110" /> : <Shield className="w-6 h-6 text-blue-600" />}
             </div>
             <div className="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-[#0f172a] z-0 overflow-hidden shrink-0">
@@ -999,7 +1015,7 @@ function AdminDashboard({ users, requests, households, officials, onLogout, show
             </button>
             <div>
               <h1 className="text-xl md:text-2xl font-extrabold text-slate-800 tracking-tight capitalize">{activeTab === 'dashboard' ? 'Dashboard' : activeTab.replace('-', ' ')}</h1>
-              <p className="hidden sm:block text-sm font-medium text-slate-500">
+              <p className="hidden sm:block text-xs md:text-sm font-medium text-slate-500">
                 {activeTab === 'requests' ? 'Manage resident document requests' : 
                  activeTab === 'residents' ? `Manage registered residents directory${resTagFilter !== 'All Tags' ? ` - ${resTagFilter}` : ''}` : 
                  activeTab === 'households' ? 'Manage household records' : 
@@ -1021,7 +1037,7 @@ function AdminDashboard({ users, requests, households, officials, onLogout, show
               ) : (
                 <div className="w-7 h-7 bg-blue-600 rounded-full text-white flex items-center justify-center font-bold text-xs">AD</div>
               )}
-              <span className="font-bold text-sm text-slate-700">Admin</span>
+              <span className="font-bold text-sm text-slate-700 hidden sm:inline-block">Admin</span>
             </div>
           </div>
         </header>
@@ -1991,723 +2007,5 @@ function ProgressBar({ label, value, total, color, onClick }) {
         <div className={`${color} h-2.5 rounded-full transition-all duration-1000 shadow-sm`} style={{ width: `${percentage}%` }}></div>
       </div>
     </div>
-  );
-}
-
-// --- RESIDENT DASHBOARD ---
-function ResidentDashboard({ user, requests, households, officials, onLogout, showToast }) {
-  const [activeTab, setActiveTab] = useState('profile');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
-  
-  const initializeEditForm = () => ({
-    ...user.profile,
-    firstName: user.profile.firstName || user.profile.name.split(' ')[0] || '',
-    lastName: user.profile.lastName || user.profile.name.split(' ').slice(1).join(' ') || '',
-    middleName: user.profile.middleName || '',
-    contactEmail: user.profile.contactEmail || user.email || '',
-    password: user.password || '', // Added to allow password updates securely
-    confirmPassword: user.password || '', // Used for validation check
-    contactNumber: user.profile.contactNumber || '',
-    occupation: user.profile.occupation || '',
-    educationalAttainment: user.profile.educationalAttainment || '',
-    address: user.profile.address || `Purok ${PUROKS[0]}`,
-    homeAddress: user.profile.homeAddress || '',
-    householdId: user.profile.householdId || '',
-    isHouseholdHead: user.profile.householdRole === 'Head' ? 'true' : 'false',
-    municipality: user.profile.municipality || 'Gigaquit',
-    image: user.profile.image || ''
-  });
-
-  const [editForm, setEditForm] = useState(initializeEditForm());
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const [reqForm, setReqForm] = useState({
-    documentType: DOC_TYPES[0],
-    firstName: user.profile.firstName || user.profile.name.split(' ')[0] || '',
-    lastName: user.profile.lastName || user.profile.name.split(' ').slice(1).join(' ') || '',
-    middleName: user.profile.middleName || '',
-    age: user.profile.age || '',
-    civilStatus: user.profile.civilStatus || 'Single',
-    purok: user.profile.address || `Purok ${PUROKS[0]}`,
-    purpose: ''
-  });
-
-  const handleRequestDoc = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      const requestsRef = collection(db, 'artifacts', appId, 'public', 'data', 'requests');
-      await addDoc(requestsRef, {
-        residentId: user.id,
-        documentType: reqForm.documentType,
-        status: 'Pending',
-        dateRequested: new Date().toISOString(),
-        requestDetails: {
-          firstName: reqForm.firstName,
-          lastName: reqForm.lastName,
-          middleName: reqForm.middleName,
-          age: reqForm.age,
-          civilStatus: reqForm.civilStatus,
-          purok: reqForm.purok,
-          purpose: reqForm.purpose
-        }
-      });
-      setActiveTab('my-requests');
-      setReqForm({ ...reqForm, purpose: '' }); 
-      showToast("Document requested successfully!");
-    } catch (err) { 
-      console.error(err);
-      showToast("Failed to request document.", "error");
-    }
-    setIsSubmitting(false);
-  };
-
-  const handleUpdateProfile = async (e) => {
-    e.preventDefault();
-    if (editForm.password !== editForm.confirmPassword) {
-      showToast("Passwords do not match!", "error");
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      const userDoc = doc(db, 'artifacts', appId, 'public', 'data', 'users', user.id);
-      const updatedName = `${editForm.firstName} ${editForm.middleName ? editForm.middleName + ' ' : ''}${editForm.lastName}`.trim().replace(/\s+/g, ' ');
-      
-      await updateDoc(userDoc, { 
-        email: editForm.contactEmail,
-        password: editForm.password, // Updates the password safely in the database backend
-        profile: {
-          ...editForm,
-          name: updatedName,
-          householdRole: editForm.isHouseholdHead === 'true' ? 'Head' : 'Member'
-        }
-      });
-      setIsEditingProfile(false);
-      showToast("Profile updated successfully!");
-    } catch (err) { 
-      console.error(err);
-      showToast("Failed to update profile.", "error");
-    }
-    setIsSubmitting(false);
-  };
-
-  useEffect(() => { 
-    setEditForm(initializeEditForm());
-    setReqForm(prev => ({
-      ...prev,
-      firstName: user.profile.firstName || user.profile.name.split(' ')[0] || '',
-      lastName: user.profile.lastName || user.profile.name.split(' ').slice(1).join(' ') || '',
-      middleName: user.profile.middleName || '',
-      age: user.profile.age || '',
-      civilStatus: user.profile.civilStatus || 'Single',
-      purok: user.profile.address || `Purok ${PUROKS[0]}`
-    }));
-  }, [user]);
-
-  const currentDate = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-  const initialsFallback = `${user.profile.firstName?.[0] || ''}${user.profile.lastName?.[0] || ''}` || user.profile.name.substring(0,2).toUpperCase();
-  const profileImage = user.profile.image || null;
-
-  // Derive current Household details for display
-  const myHousehold = households.find(h => h.id === user.profile.householdId);
-  const displayHHNumber = myHousehold ? myHousehold.hhNumber : 'Unassigned';
-  const displayHHHead = user.profile.householdRole === 'Head' ? user.profile.name : (myHousehold ? myHousehold.headName : (user.profile.householdHead || 'None/Self'));
-
-  return (
-    <div 
-      className="flex w-full h-screen overflow-hidden font-sans relative bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: `url('${BRANDING.landingBackground}')` }}
-    >
-      {/* Light blue overlay for Resident Dashboard */}
-      <div className="absolute inset-0 bg-blue-100/85 backdrop-blur-[3px] z-0"></div>
-
-      {/* Mobile Overlay */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 z-40 md:hidden backdrop-blur-sm transition-opacity" onClick={() => setIsMobileMenuOpen(false)}></div>
-      )}
-
-      {/* --- NEW COLLAPSING SMART SIDEBAR --- */}
-      <div className={`peer fixed inset-y-0 left-0 z-50 bg-[#0f172a]/95 backdrop-blur-md text-slate-300 shadow-2xl transition-all duration-200 ease-in-out flex flex-col group overflow-x-hidden ${isMobileMenuOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64'} md:translate-x-0 md:w-20 md:hover:w-64`}>
-        
-        {/* Sidebar Header / Logos */}
-        <div className="h-20 flex items-center pl-[18px] border-b border-slate-800 flex-shrink-0 overflow-hidden cursor-pointer hover:bg-slate-800/50 transition-colors" onClick={() => {setActiveTab('profile'); setIsMobileMenuOpen(false);}}>
-          <div className="flex items-center space-x-[-12px] flex-shrink-0 pr-1">
-            <div className={`w-11 h-11 bg-white rounded-full items-center justify-center shadow-lg border-2 border-[#0f172a] z-10 overflow-hidden shrink-0 flex md:hidden md:group-hover:flex`}>
-              {BRANDING.logo1 ? <img src={BRANDING.logo1} alt="Logo 1" className="w-full h-full object-cover scale-110" /> : <Shield className="w-6 h-6 text-blue-600" />}
-            </div>
-            <div className="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-[#0f172a] z-0 overflow-hidden shrink-0">
-              {BRANDING.logo2 ? <img src={BRANDING.logo2} alt="Logo 2" className="w-full h-full object-cover scale-110" /> : <Building2 className="w-6 h-6 text-red-600" />}
-            </div>
-          </div>
-          <div className="ml-2 opacity-100 w-auto md:opacity-0 md:group-hover:opacity-100 md:w-0 md:group-hover:w-auto overflow-hidden whitespace-nowrap transition-opacity duration-200 flex flex-col justify-center">
-            <h2 className="text-white font-bold leading-tight tracking-wide">{BRANDING.appShortName}</h2>
-            <p className="text-[10px] text-slate-400 font-medium">{BRANDING.appShortLocation}</p>
-          </div>
-          {/* Close button for mobile */}
-          <button className="md:hidden ml-auto mr-4 text-slate-400 hover:text-white p-1" onClick={(e) => { e.stopPropagation(); setIsMobileMenuOpen(false); }}>
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Sidebar Navigation */}
-        <div className="flex-1 py-4 overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          <div className="px-5 text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 whitespace-nowrap transition-opacity duration-200">Overview</div>
-          <SidebarItem icon={User} label="My Profile" isActive={activeTab === 'profile'} onClick={() => {setActiveTab('profile'); setIsMobileMenuOpen(false);}} />
-          
-          <div className="px-5 text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-5 mb-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 whitespace-nowrap transition-opacity duration-200">Documents</div>
-          <SidebarItem icon={FileText} label="Request Documents" isActive={activeTab === 'request'} onClick={() => {setActiveTab('request'); setIsMobileMenuOpen(false);}} />
-          <SidebarItem icon={Clock} label="My Requests" isActive={activeTab === 'my-requests'} onClick={() => {setActiveTab('my-requests'); setIsMobileMenuOpen(false);}} />
-          
-          <div className="px-5 text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-5 mb-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 whitespace-nowrap transition-opacity duration-200">Barangay</div>
-          <SidebarItem icon={Building2} label="Officials" isActive={activeTab === 'officials'} onClick={() => {setActiveTab('officials'); setIsMobileMenuOpen(false);}} />
-        </div>
-
-        {/* Sidebar Footer / User Profile */}
-        <div className="border-t border-slate-800 bg-[#0B1120] h-20 flex items-center px-3 flex-shrink-0 overflow-hidden">
-          <div className="flex items-center w-full bg-slate-800/40 hover:bg-slate-800 rounded-xl h-14 cursor-pointer transition-colors" onClick={() => {setActiveTab('profile'); setIsMobileMenuOpen(false);}}>
-             <div className="flex items-center justify-center w-[56px] flex-shrink-0">
-                {profileImage ? (
-                  <div className="w-9 h-9 rounded-full overflow-hidden border border-slate-600 flex items-center justify-center bg-slate-200">
-                    <img src={profileImage} alt="avatar" className="w-full h-full object-cover scale-110" />
-                  </div>
-                ) : (
-                  <div className="w-9 h-9 bg-blue-600 rounded-full text-white flex items-center justify-center font-extrabold text-xs">
-                    {initialsFallback}
-                  </div>
-                )}
-             </div>
-             <div className="flex-1 opacity-100 w-auto md:opacity-0 md:group-hover:opacity-100 md:w-0 md:group-hover:w-auto overflow-hidden whitespace-nowrap transition-all duration-200 flex justify-between items-center pr-4">
-               <div className="flex flex-col justify-center overflow-hidden mr-2">
-                 <p className="text-sm font-bold text-white leading-tight truncate uppercase">{user.profile.firstName || 'Resident'}</p>
-                 <p className="text-[10px] text-slate-400 font-medium">Resident</p>
-               </div>
-               <LogOut className="w-4 h-4 text-slate-400 hover:text-red-400" onClick={(e) => { e.stopPropagation(); onLogout(); }}/>
-             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col h-screen overflow-y-auto ml-0 md:ml-20 md:peer-hover:ml-64 transition-[margin] duration-200 ease-in-out relative z-10">
-        
-        {/* Top Header */}
-        <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/60 px-4 md:px-8 py-4 md:py-5 flex justify-between items-center sticky top-0 z-10 shadow-sm">
-          <div className="flex items-center">
-            <button className="md:hidden mr-3 p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors" onClick={() => setIsMobileMenuOpen(true)}>
-              <Menu className="w-5 h-5" />
-            </button>
-            <div>
-              <h1 className="text-xl md:text-2xl font-extrabold text-slate-800 tracking-tight capitalize">
-                {activeTab === 'profile' ? 'My Profile' : activeTab === 'request' ? 'Document Requests' : activeTab.replace('-', ' ')}
-              </h1>
-              <p className="hidden sm:block text-xs md:text-sm font-medium text-slate-500">
-                {activeTab === 'profile' ? 'View and update your information' : activeTab === 'request' ? 'Request and track barangay documents' : 'Manage your records'}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2 md:space-x-4">
-            <div className="text-[10px] md:text-xs font-bold text-slate-500 border border-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg bg-slate-50/80 shadow-sm flex items-center">
-              <Calendar className="w-3 h-3 md:w-4 md:h-4 mr-1.5" />
-              {currentDate}
-            </div>
-            <div className="hidden sm:flex items-center space-x-2 border border-slate-200 px-3 py-1.5 rounded-lg bg-white/90 shadow-sm cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => setActiveTab('profile')} title="Go to Profile">
-              {profileImage ? (
-                <div className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center">
-                  <img src={profileImage} alt="avatar" className="w-full h-full object-cover scale-110" />
-                </div>
-              ) : (
-                <div className="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs">{initialsFallback}</div>
-              )}
-              <span className="font-bold text-sm text-slate-700 max-w-[120px] truncate uppercase hidden sm:inline-block">{user.profile.name.split(' ')[0]}</span>
-            </div>
-          </div>
-        </header>
-
-        <main className="flex-1 p-4 md:p-8">
-          
-          {activeTab === 'profile' && (
-            <div className="max-w-5xl mx-auto animate-in fade-in duration-300 bg-white/95 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-              
-              <div className="h-32 md:h-40 bg-gradient-to-r from-blue-800 to-blue-600 relative overflow-hidden">
-                <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-overlay"></div>
-              </div>
-              
-              <div className="px-4 md:px-8 pb-6 md:pb-10 relative">
-                
-                {/* Banner Profile Image Override */}
-                <div className="absolute -top-10 left-4 md:-top-12 md:left-8 bg-white p-1.5 rounded-full shadow-lg">
-                  {profileImage ? (
-                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-slate-100 overflow-hidden flex items-center justify-center bg-slate-100">
-                      <img src={profileImage} alt="Profile" className="w-full h-full object-cover scale-110" />
-                    </div>
-                  ) : (
-                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 border-2 border-slate-100">
-                      <User className="w-8 h-8 md:w-10 md:h-10" />
-                    </div>
-                  )}
-                </div>
-
-                <div className="pt-12 md:pt-16">
-                  {isEditingProfile ? (
-                    <form onSubmit={handleUpdateProfile} className="space-y-6 max-w-3xl animate-in fade-in duration-300">
-                      <h2 className="text-xl font-bold text-slate-800 mb-4 border-b pb-2">Edit My Information</h2>
-                      
-                      {/* Image Uploader for Resident */}
-                      <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer relative group w-max">
-                        {editForm.image ? (
-                          <div className="w-16 h-16 rounded-full border-2 border-white shadow-sm overflow-hidden group-hover:opacity-80 transition-opacity flex items-center justify-center bg-slate-100">
-                            <img src={editForm.image} alt="Profile Preview" className="w-full h-full object-cover scale-110" />
-                          </div>
-                        ) : (
-                          <div className="w-16 h-16 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 mb-1 shadow-inner group-hover:bg-slate-300 transition-colors">
-                            <Camera className="w-6 h-6" />
-                          </div>
-                        )}
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-2 px-4">Change Photo</span>
-                        <input type="file" accept="image/*" onChange={(e) => handleImageResize(e.target.files[0], (base64) => setEditForm({...editForm, image: base64}))} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                      </div>
-
-                      <div className="grid md:grid-cols-2 gap-6">
-                        
-                        <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">First Name</label>
-                            <input type="text" value={editForm.firstName} onChange={e => setEditForm({...editForm, firstName: e.target.value})} className="cursor-text w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Middle Name</label>
-                            <input type="text" value={editForm.middleName} onChange={e => setEditForm({...editForm, middleName: e.target.value})} className="cursor-text w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Last Name</label>
-                            <input type="text" value={editForm.lastName} onChange={e => setEditForm({...editForm, lastName: e.target.value})} className="cursor-text w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required />
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Date of Birth</label>
-                          <input type="date" value={editForm.dateOfBirth || ''} onChange={e => setEditForm({...editForm, dateOfBirth: e.target.value})} className="cursor-text w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-slate-700" required />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Place of Birth</label>
-                          <input type="text" value={editForm.placeOfBirth || ''} onChange={e => setEditForm({...editForm, placeOfBirth: e.target.value})} className="cursor-text w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nationality</label>
-                          <input type="text" value={editForm.nationality || ''} onChange={e => setEditForm({...editForm, nationality: e.target.value})} className="cursor-text w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Religion</label>
-                          <input type="text" value={editForm.religion || ''} onChange={e => setEditForm({...editForm, religion: e.target.value})} className="cursor-text w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Civil Status</label>
-                          <select value={editForm.civilStatus || 'Single'} onChange={e => setEditForm({...editForm, civilStatus: e.target.value})} className="cursor-pointer w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
-                            <option>Single</option><option>Married</option><option>Widowed</option><option>Separated</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Gender</label>
-                          <select value={editForm.gender} onChange={e => setEditForm({...editForm, gender: e.target.value})} className="cursor-pointer w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
-                            <option>Male</option><option>Female</option>
-                          </select>
-                        </div>
-                        
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Age</label>
-                          <input type="number" value={editForm.age} onChange={e => setEditForm({...editForm, age: parseInt(e.target.value)})} className="cursor-text w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Contact Number</label>
-                          <input type="tel" value={editForm.contactNumber || ''} onChange={e => setEditForm({...editForm, contactNumber: e.target.value})} className="cursor-text w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" />
-                        </div>
-                        
-                        <div className="md:col-span-2">
-                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email Address (Login Email)</label>
-                          <input type="email" value={editForm.contactEmail || ''} onChange={e => setEditForm({...editForm, contactEmail: e.target.value})} className="cursor-text w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Occupation</label>
-                          <input type="text" value={editForm.occupation || ''} onChange={e => setEditForm({...editForm, occupation: e.target.value})} className="cursor-text w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Educational Attainment</label>
-                          <select value={editForm.educationalAttainment || ''} onChange={e => setEditForm({...editForm, educationalAttainment: e.target.value})} className="cursor-pointer w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
-                            <option value="">Select...</option>
-                            <option>Elementary Level</option>
-                            <option>Elementary Graduate</option>
-                            <option>High School Level</option>
-                            <option>High School Graduate</option>
-                            <option>College Level</option>
-                            <option>College Graduate</option>
-                            <option>Vocational</option>
-                            <option>Post-Graduate</option>
-                          </select>
-                        </div>
-
-                        <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div className="sm:col-span-2">
-                            <h4 className="text-sm font-bold text-blue-800 mb-1">Location & Household</h4>
-                            <p className="text-xs text-blue-600 mb-3">Update your address and official household link.</p>
-                          </div>
-                          <div className="sm:col-span-2">
-                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Specific Home Address</label>
-                            <input type="text" value={editForm.homeAddress || ''} onChange={e => setEditForm({...editForm, homeAddress: e.target.value})} className="cursor-text w-full p-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="House No., Block, Street..." />
-                          </div>
-                          <div>
-                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Select Household Record</label>
-                            <select value={editForm.householdId || ''} onChange={e => setEditForm({...editForm, householdId: e.target.value})} className="cursor-pointer w-full p-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
-                              <option value="">None / Not Listed</option>
-                              {households.map(hh => <option key={hh.id} value={hh.id}>{hh.hhNumber} - {hh.headName}</option>)}
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Household Role</label>
-                            <select value={editForm.isHouseholdHead} onChange={e => setEditForm({...editForm, isHouseholdHead: e.target.value})} className="cursor-pointer w-full p-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm font-bold">
-                              <option value="false">Member</option><option value="true">Head of Household</option>
-                            </select>
-                          </div>
-                          <div className="sm:col-span-2 mt-2">
-                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Purok / Sitio <span className="text-red-500">*</span></label>
-                            <select value={editForm.address || ''} onChange={e => setEditForm({...editForm, address: e.target.value})} className="cursor-pointer w-full p-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required>
-                              {PUROKS.map(p => <option key={p} value={`Purok ${p}`}>Purok {p}</option>)}
-                            </select>
-                          </div>
-                        </div>
-                        
-                        {/* New Password Edit Section for Resident */}
-                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-                          <div className="sm:col-span-2">
-                            <h4 className="text-sm font-bold text-slate-700 mb-1">Account Security</h4>
-                            <p className="text-xs text-slate-500 mb-2">Update your login password securely.</p>
-                          </div>
-                          <div>
-                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">New Password <span className="text-red-500">*</span></label>
-                            <input type="password" value={editForm.password} onChange={e => setEditForm({...editForm, password: e.target.value})} className="cursor-text w-full p-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required />
-                          </div>
-                          <div>
-                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Confirm Password <span className="text-red-500">*</span></label>
-                            <input type="password" value={editForm.confirmPassword} onChange={e => setEditForm({...editForm, confirmPassword: e.target.value})} className="cursor-text w-full p-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required />
-                          </div>
-                        </div>
-
-                      </div>
-                      <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 pt-4 border-t border-slate-100">
-                        <button disabled={isSubmitting} type="submit" className="cursor-pointer bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 flex justify-center items-center shadow-md hover:-translate-y-0.5 transition-all">
-                          {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2"/> : null} Save Changes
-                        </button>
-                        <button disabled={isSubmitting} type="button" onClick={() => {setIsEditingProfile(false); setEditForm(initializeEditForm())}} className="cursor-pointer bg-slate-100 text-slate-600 px-8 py-3 rounded-xl font-bold hover:bg-slate-200 transition-colors flex justify-center items-center">
-                          Cancel
-                        </button>
-                      </div>
-                    </form>
-                  ) : (
-                    <div className="animate-in fade-in duration-300">
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start pt-4 sm:pt-8">
-                        <div>
-                          <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#0f172a] uppercase tracking-tight mb-2">
-                            {user.profile.name}
-                          </h2>
-                          <p className="text-sm text-slate-500 font-medium">
-                            {user.profile.address || 'Purok N/A'} • {user.profile.civilStatus || 'Single'} • {user.profile.age} years old
-                          </p>
-                          
-                          <div className="mt-4 flex flex-wrap gap-2 items-center">
-                            <span className={`text-xs font-bold px-3 py-1.5 rounded-full flex items-center w-max border ${user.accountStatus === 'Active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
-                              <Activity className="w-3.5 h-3.5 mr-1.5"/> Account: {user.accountStatus || 'Active'}
-                            </span>
-                            
-                            {user.profile.isVoter && (
-                              <span className="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1.5 rounded-full flex items-center w-max border border-blue-100 shadow-sm">
-                                <CheckCircle className="w-3.5 h-3.5 mr-1.5"/> Registered Voter
-                              </span>
-                            )}
-                            {user.profile.isPwd && (
-                              <span className="bg-purple-50 text-purple-700 text-xs font-bold px-3 py-1.5 rounded-full flex items-center w-max border border-purple-100 shadow-sm">
-                                <Accessibility className="w-3.5 h-3.5 mr-1.5"/> PWD
-                              </span>
-                            )}
-                          </div>
-                          
-                          <p className="text-xs text-slate-400 mt-3 flex items-center">
-                            <Calendar className="w-3.5 h-3.5 mr-1" /> Registered on {new Date(user.dateOfRegistration || Date.now()).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                          </p>
-                        </div>
-                        
-                        <button onClick={() => setIsEditingProfile(true)} className="cursor-pointer mt-6 sm:mt-0 bg-[#2563eb] text-white px-5 py-2.5 rounded-xl text-sm font-bold flex justify-center items-center shadow-lg shadow-blue-500/30 hover:bg-blue-700 hover:-translate-y-0.5 transition-all">
-                          <Pencil className="w-4 h-4 mr-2" /> Edit My Information
-                        </button>
-                      </div>
-
-                      {/* Detailed Data Grid - 2 Columns */}
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10">
-                        
-                        {/* Personal Details Card */}
-                        <div className="border border-slate-100 rounded-xl p-4 sm:p-6 shadow-sm bg-white h-max hover:border-blue-200 transition-colors">
-                          <h3 className="text-xs font-bold text-[#1e3a8a] uppercase flex items-center mb-5 pb-4 border-b border-dashed border-slate-200 tracking-wider">
-                            <User className="w-4 h-4 mr-2"/> Personal Details
-                          </h3>
-                          
-                          <div className="grid grid-cols-2 gap-y-5 gap-x-4">
-                            <div className="col-span-2">
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Full Name</p>
-                              <p className="text-sm font-bold text-slate-800 uppercase">{user.profile.name}</p>
-                            </div>
-                            <div>
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Date of Birth</p>
-                              <p className="text-sm font-bold text-slate-800">{user.profile.dateOfBirth ? new Date(user.profile.dateOfBirth).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}</p>
-                            </div>
-                            <div>
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Place of Birth</p>
-                              <p className="text-sm font-bold text-slate-800">{user.profile.placeOfBirth || 'N/A'}</p>
-                            </div>
-                            <div>
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Age</p>
-                              <p className="text-sm font-bold text-slate-800">{user.profile.age} years old</p>
-                            </div>
-                            <div>
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Gender</p>
-                              <p className="text-sm font-bold text-slate-800 capitalize">{user.profile.gender}</p>
-                            </div>
-                            <div>
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nationality</p>
-                              <p className="text-sm font-bold text-slate-800">{user.profile.nationality || 'Filipino'}</p>
-                            </div>
-                            <div>
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Religion</p>
-                              <p className="text-sm font-bold text-slate-800">{user.profile.religion || 'N/A'}</p>
-                            </div>
-                            <div className="col-span-2">
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Civil Status</p>
-                              <p className="text-sm font-bold text-slate-800 capitalize">{user.profile.civilStatus || 'Single'}</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Right Column Stack */}
-                        <div className="flex flex-col gap-6 h-max">
-                          
-                          {/* Contact & Work Card */}
-                          <div className="border border-slate-100 rounded-xl p-4 sm:p-6 shadow-sm bg-white hover:border-green-200 transition-colors">
-                            <h3 className="text-xs font-bold text-[#15803d] uppercase flex items-center mb-5 pb-4 border-b border-dashed border-slate-200 tracking-wider">
-                              <Activity className="w-4 h-4 mr-2"/> Contact & Work
-                            </h3>
-                            
-                            <div className="space-y-5">
-                              <div>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Email Address</p>
-                                <p className="text-sm font-bold text-slate-800 break-all">{user.profile.contactEmail || user.email}</p>
-                              </div>
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Contact Number</p>
-                                  <p className="text-sm font-bold text-slate-800">{user.profile.contactNumber || 'N/A'}</p>
-                                </div>
-                                <div>
-                                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Occupation</p>
-                                  <p className="text-sm font-bold text-slate-800">{user.profile.occupation || 'N/A'}</p>
-                                </div>
-                              </div>
-                              <div>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Educational Attainment</p>
-                                <p className="text-sm font-bold text-slate-800">{user.profile.educationalAttainment || 'N/A'}</p>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Address & Location Card */}
-                          <div className="border border-slate-100 rounded-xl p-4 sm:p-6 shadow-sm bg-white hover:border-red-200 transition-colors">
-                            <h3 className="text-xs font-bold text-[#e11d48] uppercase flex items-center mb-5 pb-4 border-b border-dashed border-slate-200 tracking-wider">
-                              <MapPin className="w-4 h-4 mr-2"/> Address & Household
-                            </h3>
-                            
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-4">
-                              <div className="sm:col-span-2">
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Home Address</p>
-                                <p className="text-sm font-bold text-slate-800">{user.profile.homeAddress || 'N/A'}</p>
-                              </div>
-                              <div>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Purok / Sitio</p>
-                                <p className="text-sm font-bold text-slate-800">{user.profile.address || 'N/A'}</p>
-                              </div>
-                              <div>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Municipality</p>
-                                <p className="text-sm font-bold text-slate-800">{user.profile.municipality || 'Gigaquit'}</p>
-                              </div>
-                              
-                              {/* NEW HOUSEHOLD DISPLAY */}
-                              <div className="sm:col-span-2 pt-2 border-t border-slate-100 mt-2">
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Household Link</p>
-                                <div className="flex items-center bg-blue-50 p-3 rounded-lg border border-blue-100 shadow-sm">
-                                  <Home className="w-5 h-5 text-blue-600 mr-3" />
-                                  <div>
-                                    <p className="text-sm font-extrabold text-blue-900">{displayHHNumber}</p>
-                                    <p className="text-[10px] font-medium text-blue-700 uppercase">Head: {displayHHHead}</p>
-                                  </div>
-                                </div>
-                              </div>
-
-                            </div>
-                          </div>
-
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'request' && (
-            <div className="max-w-5xl mx-auto animate-in fade-in zoom-in-95 duration-300">
-              <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-                <div className="p-6 border-b border-slate-100 flex items-center bg-white/50">
-                  <PlusCircle className="w-5 h-5 mr-2 text-[#0f172a]" />
-                  <h2 className="text-lg font-extrabold text-[#0f172a]">Request a Document</h2>
-                </div>
-                
-                <form onSubmit={handleRequestDoc} className="p-8">
-                  <div className="grid md:grid-cols-2 gap-x-8 gap-y-6">
-                    <div className="md:col-span-2">
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Document Type <span className="text-red-500">*</span></label>
-                      <select 
-                        value={reqForm.documentType} onChange={e => setReqForm({...reqForm, documentType: e.target.value})}
-                        className="cursor-pointer w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 text-slate-800 text-sm font-medium"
-                      >
-                        {DOC_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">First Name <span className="text-red-500">*</span></label>
-                      <input required type="text" value={reqForm.firstName} onChange={e => setReqForm({...reqForm, firstName: e.target.value})} className="cursor-text w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 text-slate-800 text-sm" placeholder="Your first name" />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Last Name <span className="text-red-500">*</span></label>
-                      <input required type="text" value={reqForm.lastName} onChange={e => setReqForm({...reqForm, lastName: e.target.value})} className="cursor-text w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 text-slate-800 text-sm" placeholder="Your last name" />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Middle Name (Optional)</label>
-                      <input type="text" value={reqForm.middleName} onChange={e => setReqForm({...reqForm, middleName: e.target.value})} className="cursor-text w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 text-slate-800 text-sm" placeholder="Leave blank if you don't have one" />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Age</label>
-                      <input type="number" value={reqForm.age} onChange={e => setReqForm({...reqForm, age: e.target.value})} className="cursor-text w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 text-slate-800 text-sm" placeholder="Your age" />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Civil Status</label>
-                      <select value={reqForm.civilStatus} onChange={e => setReqForm({...reqForm, civilStatus: e.target.value})} className="cursor-pointer w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 text-slate-800 text-sm">
-                        <option>Single</option><option>Married</option><option>Widowed</option><option>Separated</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Purok / Sitio <span className="text-red-500">*</span></label>
-                      <select required value={reqForm.purok} onChange={e => setReqForm({...reqForm, purok: e.target.value})} className="cursor-pointer w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 text-slate-800 text-sm">
-                        {PUROKS.map(p => <option key={p} value={`Purok ${p}`}>Purok {p}</option>)}
-                      </select>
-                    </div>
-                    <div className="md:col-span-2 mt-2">
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Purpose of Request <span className="text-red-500">*</span></label>
-                      <textarea required value={reqForm.purpose} onChange={e => setReqForm({...reqForm, purpose: e.target.value})} rows="4" className="cursor-text w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 text-slate-800 text-sm resize-none custom-scrollbar" placeholder="Explain why you need this document..."></textarea>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-8">
-                    <button disabled={isSubmitting} type="submit" className="cursor-pointer bg-[#1e3a8a] text-white font-bold py-3 px-6 rounded-xl hover:bg-blue-900 transition-all flex justify-center items-center disabled:opacity-70 shadow-md hover:-translate-y-0.5">
-                      {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Send className="w-4 h-4 mr-2" />} 
-                      Submit Request
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'my-requests' && (
-             <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden max-w-5xl mx-auto">
-               <div className="p-6 md:p-8 border-b border-slate-100 bg-white/50">
-                <h2 className="text-2xl font-extrabold text-slate-800 tracking-tight">Request History</h2>
-              </div>
-              <div className="p-4 md:p-8">
-                {requests.length === 0 ? (
-                  <div className="text-center py-16 text-slate-400">
-                    <FileText className="w-16 h-16 mx-auto mb-4 opacity-20" />
-                    <p className="text-lg font-medium text-slate-500">No documents requested yet.</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {requests.sort((a,b) => new Date(b.dateRequested) - new Date(a.dateRequested)).map(req => (
-                      <div key={req.id} className="flex flex-col p-4 md:p-6 border border-slate-100 rounded-2xl bg-white hover:shadow-md transition-all cursor-pointer hover:-translate-y-0.5">
-                        
-                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start w-full gap-3">
-                          <div>
-                            <h4 className="font-bold text-slate-800 text-lg group-hover:text-blue-700 transition-colors">{req.documentType}</h4>
-                            <p className="text-sm text-slate-500 flex items-center mt-1.5 font-medium">
-                              <Clock className="w-4 h-4 mr-1.5 opacity-70" /> {new Date(req.dateRequested).toLocaleDateString()}
-                            </p>
-                          </div>
-                          <div className="flex flex-col sm:items-end">
-                            <StatusBadge status={req.status} />
-                            {req.dateProcessed && <span className="text-xs text-slate-400 mt-2.5 font-medium">Processed</span>}
-                          </div>
-                        </div>
-
-                        {req.adminNote && (
-                          <div className="mt-5 p-3.5 bg-blue-50 border border-blue-100 rounded-xl text-sm w-full">
-                            <span className="font-bold text-blue-900 block mb-1">Message from Admin:</span>
-                            <span className="text-blue-800/90 leading-relaxed block">"{req.adminNote}"</span>
-                          </div>
-                        )}
-                        
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'officials' && (
-             <div className="max-w-6xl mx-auto animate-in fade-in duration-300">
-              <div className="mb-8 bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-sm border border-slate-200">
-                <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight">Barangay Officials</h2>
-                <p className="text-sm font-medium text-slate-500 mt-1">Get to know the current term's barangay council.</p>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {officials.length === 0 ? (
-                  <div className="col-span-3 text-center py-12 text-slate-400 font-medium bg-white/80 rounded-3xl">No officials recorded.</div>
-                ) : officials.map(official => (
-                  <div key={official.id} className="bg-white/95 backdrop-blur-sm rounded-3xl p-8 shadow-sm border border-slate-200/60 text-center hover:-translate-y-1 transition-transform cursor-pointer hover:shadow-lg">
-                    <div className="w-28 h-28 mx-auto bg-blue-50 rounded-full mb-5 shadow-sm border-2 border-slate-100 overflow-hidden flex items-center justify-center">
-                      <img src={official.image} alt={official.name} className="w-full h-full object-cover scale-110" />
-                    </div>
-                    <h3 className="font-bold text-lg text-slate-800 leading-tight uppercase">{official.name}</h3>
-                    <p className="text-blue-600 text-sm font-bold mt-2 bg-blue-50 inline-block px-3 py-1 rounded-full">{official.position}</p>
-                    {official.yearOfTerm && <p className="text-xs font-bold text-slate-400 mt-3 tracking-widest uppercase">Term: {official.yearOfTerm}</p>}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </main>
-      </div>
-    </div>
-  );
-}
-
-function StatusBadge({ status }) {
-  const styles = {
-    'Pending': 'bg-[#fef3c7] text-[#92400e] border-[#fde68a]',
-    'Approved': 'bg-[#d1fae5] text-[#065f46] border-[#a7f3d0]',
-    'Rejected': 'bg-[#fee2e2] text-[#991b1b] border-[#fecaca]'
-  };
-  return (
-    <span className={`px-3 py-1 rounded-md text-[10px] font-extrabold border tracking-wider uppercase ${styles[status] || 'bg-slate-100'}`}>
-      {status}
-    </span>
   );
 }
