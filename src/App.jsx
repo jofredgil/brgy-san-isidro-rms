@@ -101,6 +101,7 @@ export default function App() {
   
   const [sandboxUser, setSandboxUser] = useState(null);
   const [isDbReady, setIsDbReady] = useState(false);
+  const [isCheckingLocalAuth, setIsCheckingLocalAuth] = useState(true);
 
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
   const toastTimeout = useRef(null);
@@ -152,13 +153,19 @@ export default function App() {
         }).catch(err => console.error("Error creating admin:", err));
       } else {
         setUsers(fetchedUsers);
+        
+        const savedUserId = localStorage.getItem('brgy-app-user-id');
         setCurrentUser(prevUser => {
           if (prevUser) {
             const updatedSelf = fetchedUsers.find(u => u.id === prevUser.id);
             return updatedSelf || prevUser;
+          } else if (savedUserId) {
+            const restoredUser = fetchedUsers.find(u => u.id === savedUserId);
+            return restoredUser || null;
           }
           return null;
         });
+        setIsCheckingLocalAuth(false);
       }
     });
 
@@ -187,6 +194,7 @@ export default function App() {
     const user = users.find(u => u.email === email && u.password === password);
     if (user) {
       setCurrentUser(user);
+      localStorage.setItem('brgy-app-user-id', user.id); // Persist login
       const firstName = user.profile.firstName || user.profile.name.split(' ')[0] || 'User';
       showToast(`Welcome back, ${firstName.toUpperCase()}!`);
       return true;
@@ -237,6 +245,7 @@ export default function App() {
       };
       const docRef = await addDoc(usersRef, newUser);
       setCurrentUser({ id: docRef.id, ...newUser });
+      localStorage.setItem('brgy-app-user-id', docRef.id); // Persist login
       
       showToast(`Registration successful! Welcome, ${userData.firstName.toUpperCase()}.`);
       return true;
@@ -248,10 +257,11 @@ export default function App() {
 
   const handleLogout = () => {
     setCurrentUser(null);
+    localStorage.removeItem('brgy-app-user-id');
     showToast("Logged out successfully.");
   };
 
-  if (!isDbReady) {
+  if (!isDbReady || isCheckingLocalAuth) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-blue-950 text-blue-100">
         <Loader2 className="w-12 h-12 animate-spin mb-4 text-blue-400" />
@@ -998,11 +1008,12 @@ function AdminDashboard({ users, requests, households, officials, onLogout, show
               </p>
             </div>
           </div>
-          <div className="flex items-center space-x-4">
-            <div className="hidden md:block text-xs font-bold text-slate-500 border border-slate-200 px-4 py-2 rounded-lg bg-slate-50/80">
+          <div className="flex items-center space-x-2 md:space-x-4">
+            <div className="text-[10px] md:text-xs font-bold text-slate-500 border border-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg bg-slate-50/80 shadow-sm flex items-center">
+              <Calendar className="w-3 h-3 md:w-4 md:h-4 mr-1.5" />
               {currentDate}
             </div>
-            <div className="flex items-center space-x-2 border border-slate-200 px-3 py-1.5 rounded-lg bg-white/90 shadow-sm cursor-pointer hover:bg-slate-50 transition-colors" onClick={onLogout} title="Click to logout">
+            <div className="hidden sm:flex items-center space-x-2 border border-slate-200 px-3 py-1.5 rounded-lg bg-white/90 shadow-sm cursor-pointer hover:bg-slate-50 transition-colors" onClick={onLogout} title="Click to logout">
               {currentUser?.profile?.image ? (
                 <div className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center bg-slate-200">
                   <img src={currentUser.profile.image} alt="admin" className="w-full h-full object-cover scale-110" />
@@ -1010,7 +1021,7 @@ function AdminDashboard({ users, requests, households, officials, onLogout, show
               ) : (
                 <div className="w-7 h-7 bg-blue-600 rounded-full text-white flex items-center justify-center font-bold text-xs">AD</div>
               )}
-              <span className="font-bold text-sm text-slate-700 hidden sm:inline-block">Admin</span>
+              <span className="font-bold text-sm text-slate-700">Admin</span>
             </div>
           </div>
         </header>
@@ -1106,7 +1117,7 @@ function AdminDashboard({ users, requests, households, officials, onLogout, show
                     <input 
                       type="text" placeholder="Search household..." 
                       value={hhSearch} onChange={(e) => setHhSearch(e.target.value)}
-                      className="cursor-text w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 transition-colors hover:bg-white" 
+                      className="cursor-text w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 transition-all hover:bg-white" 
                     />
                   </div>
                   <button onClick={openAddHousehold} className="cursor-pointer bg-[#1e3a8a] text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center hover:bg-blue-900 transition-colors shadow-sm ml-1 whitespace-nowrap hover:-translate-y-0.5">
@@ -1382,7 +1393,7 @@ function AdminDashboard({ users, requests, households, officials, onLogout, show
                       <input 
                         type="text" placeholder="Search..." 
                         value={voterSearch} onChange={(e) => setVoterSearch(e.target.value)}
-                        className="cursor-text w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 transition-colors hover:bg-white" 
+                        className="cursor-text w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 transition-all hover:bg-white" 
                       />
                     </div>
                     <select value={voterFilter} onChange={e=>setVoterFilter(e.target.value)} className="cursor-pointer border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-slate-600 outline-none bg-slate-50 hover:bg-white transition-colors">
@@ -1432,7 +1443,7 @@ function AdminDashboard({ users, requests, households, officials, onLogout, show
                               </span>
                             </td>
                             <td className="p-4">
-                              <span className="px-2 py-1 rounded-md text-[11px] font-bold border border-slate-200 text-slate-600 bg-white whitespace-nowrap shadow-sm group-hover:border-red-200 transition-colors">
+                              <span className="px-2 py-1 rounded-md text-[11px] font-bold border border-slate-200 text-slate-600 bg-white whitespace-nowrap shadow-sm">
                                 <MapPin className="w-3 h-3 text-red-500 inline mr-1" /> {res.profile.address}
                               </span>
                             </td>
@@ -1534,7 +1545,7 @@ function AdminDashboard({ users, requests, households, officials, onLogout, show
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {officials.length === 0 ? (
-                  <div className="col-span-3 text-center py-12 text-slate-400 font-medium">No officials recorded.</div>
+                  <div className="col-span-3 text-center py-12 text-slate-400 font-medium bg-white/80 rounded-3xl">No officials recorded.</div>
                 ) : officials.map(official => (
                   <div key={official.id} className="bg-white/95 backdrop-blur-sm rounded-3xl p-8 shadow-sm border border-slate-200/60 text-center hover:-translate-y-1 transition-transform relative group cursor-pointer hover:shadow-lg">
                     <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
@@ -1995,6 +2006,8 @@ function ResidentDashboard({ user, requests, households, officials, onLogout, sh
     lastName: user.profile.lastName || user.profile.name.split(' ').slice(1).join(' ') || '',
     middleName: user.profile.middleName || '',
     contactEmail: user.profile.contactEmail || user.email || '',
+    password: user.password || '', // Added to allow password updates securely
+    confirmPassword: user.password || '', // Used for validation check
     contactNumber: user.profile.contactNumber || '',
     occupation: user.profile.occupation || '',
     educationalAttainment: user.profile.educationalAttainment || '',
@@ -2052,6 +2065,10 @@ function ResidentDashboard({ user, requests, households, officials, onLogout, sh
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
+    if (editForm.password !== editForm.confirmPassword) {
+      showToast("Passwords do not match!", "error");
+      return;
+    }
     setIsSubmitting(true);
     try {
       const userDoc = doc(db, 'artifacts', appId, 'public', 'data', 'users', user.id);
@@ -2059,6 +2076,7 @@ function ResidentDashboard({ user, requests, households, officials, onLogout, sh
       
       await updateDoc(userDoc, { 
         email: editForm.contactEmail,
+        password: editForm.password, // Updates the password safely in the database backend
         profile: {
           ...editForm,
           name: updatedName,
@@ -2188,11 +2206,12 @@ function ResidentDashboard({ user, requests, households, officials, onLogout, sh
               </p>
             </div>
           </div>
-          <div className="flex items-center space-x-4">
-            <div className="hidden md:block text-xs font-bold text-slate-500 border border-slate-200 px-4 py-2 rounded-lg bg-slate-50/80">
+          <div className="flex items-center space-x-2 md:space-x-4">
+            <div className="text-[10px] md:text-xs font-bold text-slate-500 border border-slate-200 px-3 py-1.5 md:px-4 md:py-2 rounded-lg bg-slate-50/80 shadow-sm flex items-center">
+              <Calendar className="w-3 h-3 md:w-4 md:h-4 mr-1.5" />
               {currentDate}
             </div>
-            <div className="flex items-center space-x-2 border border-slate-200 px-3 py-1.5 rounded-lg bg-white/90 shadow-sm cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => setActiveTab('profile')} title="Go to Profile">
+            <div className="hidden sm:flex items-center space-x-2 border border-slate-200 px-3 py-1.5 rounded-lg bg-white/90 shadow-sm cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => setActiveTab('profile')} title="Go to Profile">
               {profileImage ? (
                 <div className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center">
                   <img src={profileImage} alt="avatar" className="w-full h-full object-cover scale-110" />
@@ -2249,7 +2268,7 @@ function ResidentDashboard({ user, requests, households, officials, onLogout, sh
                         <input type="file" accept="image/*" onChange={(e) => handleImageResize(e.target.files[0], (base64) => setEditForm({...editForm, image: base64}))} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid md:grid-cols-2 gap-6">
                         
                         <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
@@ -2347,7 +2366,7 @@ function ResidentDashboard({ user, requests, households, officials, onLogout, sh
                             </select>
                           </div>
                           <div>
-                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Household Role</label>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Household Role</label>
                             <select value={editForm.isHouseholdHead} onChange={e => setEditForm({...editForm, isHouseholdHead: e.target.value})} className="cursor-pointer w-full p-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm font-bold">
                               <option value="false">Member</option><option value="true">Head of Household</option>
                             </select>
@@ -2360,6 +2379,22 @@ function ResidentDashboard({ user, requests, households, officials, onLogout, sh
                           </div>
                         </div>
                         
+                        {/* New Password Edit Section for Resident */}
+                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                          <div className="sm:col-span-2">
+                            <h4 className="text-sm font-bold text-slate-700 mb-1">Account Security</h4>
+                            <p className="text-xs text-slate-500 mb-2">Update your login password securely.</p>
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">New Password <span className="text-red-500">*</span></label>
+                            <input type="password" value={editForm.password} onChange={e => setEditForm({...editForm, password: e.target.value})} className="cursor-text w-full p-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Confirm Password <span className="text-red-500">*</span></label>
+                            <input type="password" value={editForm.confirmPassword} onChange={e => setEditForm({...editForm, confirmPassword: e.target.value})} className="cursor-text w-full p-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required />
+                          </div>
+                        </div>
+
                       </div>
                       <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 pt-4 border-t border-slate-100">
                         <button disabled={isSubmitting} type="submit" className="cursor-pointer bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 flex justify-center items-center shadow-md hover:-translate-y-0.5 transition-all">
