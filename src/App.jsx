@@ -2,11 +2,19 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
   Users, FileText, CheckCircle, Clock, User, LogOut, 
   Home, Shield, PlusCircle, Activity, FileCheck, AlertCircle, Menu, X, Loader2,
-  MapPin, Key, UserPlus, ArrowLeft, Building2, LayoutDashboard, Heart, Accessibility, Pencil, Calendar, Send, Trash2, Search, ChevronDown, ChevronUp, Ban, UserCheck, BarChart2, Camera
+  MapPin, Key, Award, UserPlus, ArrowLeft, Building2, LayoutDashboard, Heart, Accessibility, Pencil, Calendar, Send, Trash2, Search, ChevronDown, ChevronUp, Ban, UserCheck, BarChart2, Camera, Info, ExternalLink, Lightbulb, Eye, Target, Star, Lock, Zap, Globe, BookOpen, Phone, ArrowRight
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, collection, onSnapshot, doc, setDoc, addDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+
+function FacebookIcon({ className }) {
+  return (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+    </svg>
+  );
+}
 
 // --- FIREBASE SETUP ---
 const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
@@ -642,6 +650,7 @@ function AdminDashboard({ users, requests, households, officials, onLogout, show
           <SidebarItem icon={Heart} label="4Ps Beneficiaries" badge={stats.fourPs} isActive={activeTab === 'residents' && resTagFilter === '4Ps'} onClick={() => { setActiveTab('residents'); setResTagFilter('4Ps'); setIsMobileMenuOpen(false); }} />
           <div className="px-5 text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-5 mb-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 whitespace-nowrap transition-opacity duration-200">Barangay</div>
           <SidebarItem icon={Building2} label="Officials" badge="5" isActive={activeTab === 'officials'} onClick={() => {setActiveTab('officials'); setIsMobileMenuOpen(false);}} />
+          <SidebarItem icon={Info} label="About" isActive={activeTab === 'about'} onClick={() => {setActiveTab('about'); setIsMobileMenuOpen(false);}} />
         </div>
 
         <div className="border-t border-slate-800 bg-[#0B1120] h-20 flex items-center px-3 flex-shrink-0 overflow-hidden">
@@ -666,7 +675,7 @@ function AdminDashboard({ users, requests, households, officials, onLogout, show
             <div>
               <h1 className="text-xl md:text-2xl font-extrabold text-slate-800 tracking-tight capitalize">{activeTab === 'dashboard' ? 'Dashboard' : activeTab.replace('-', ' ')}</h1>
               <p className="hidden sm:block text-xs md:text-sm font-medium text-slate-500">
-                {activeTab === 'requests' ? 'Manage resident document requests' : activeTab === 'residents' ? `Manage registered residents directory` : activeTab === 'households' ? 'Manage household records' : activeTab === 'voters' ? 'Registered & Non-Registered Voters' : activeTab === 'officials' ? 'Manage Officials' : 'Overview & Statistics'}
+                {activeTab === 'requests' ? 'Manage resident document requests' : activeTab === 'residents' ? `Manage registered residents directory` : activeTab === 'households' ? 'Manage household records' : activeTab === 'voters' ? 'Registered & Non-Registered Voters' : activeTab === 'officials' ? 'Manage Officials' : activeTab === 'about' ? 'System & Barangay Information' : 'Overview & Statistics'}
               </p>
             </div>
           </div>
@@ -991,6 +1000,9 @@ function AdminDashboard({ users, requests, households, officials, onLogout, show
               </div>
             </div>
           )}
+          {activeTab === 'about' && (
+            <AboutPage />
+          )}
         </main>
       </div>
 
@@ -1229,6 +1241,7 @@ function ResidentDashboard({ user, requests, households, officials, onLogout, sh
           <SidebarItem icon={Clock} label="My Requests" isActive={activeTab === 'my-requests'} onClick={() => {setActiveTab('my-requests'); setIsMobileMenuOpen(false);}} />
           <div className="px-5 text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-5 mb-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 whitespace-nowrap transition-opacity duration-200">Barangay</div>
           <SidebarItem icon={Building2} label="Officials" isActive={activeTab === 'officials'} onClick={() => {setActiveTab('officials'); setIsMobileMenuOpen(false);}} />
+          <SidebarItem icon={Info} label="About" isActive={activeTab === 'about'} onClick={() => {setActiveTab('about'); setIsMobileMenuOpen(false);}} />
         </div>
 
         <div className="border-t border-slate-800 bg-[#0B1120] h-20 flex items-center px-3 flex-shrink-0 overflow-hidden">
@@ -1252,7 +1265,7 @@ function ResidentDashboard({ user, requests, households, officials, onLogout, sh
             <button className="md:hidden mr-3 p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors" onClick={() => setIsMobileMenuOpen(true)}><Menu className="w-5 h-5" /></button>
             <div>
               <h1 className="text-xl md:text-2xl font-extrabold text-slate-800 tracking-tight capitalize">{activeTab === 'profile' ? 'My Profile' : activeTab === 'request' ? 'Document Requests' : activeTab.replace('-', ' ')}</h1>
-              <p className="hidden sm:block text-xs md:text-sm font-medium text-slate-500">{activeTab === 'profile' ? 'View and update your information' : activeTab === 'request' ? 'Request and track barangay documents' : 'Manage your records'}</p>
+              <p className="hidden sm:block text-xs md:text-sm font-medium text-slate-500">{activeTab === 'profile' ? 'View and update your information' : activeTab === 'request' ? 'Request and track barangay documents' : activeTab === 'about' ? 'System & Barangay Information' : 'Manage your records'}</p>
             </div>
           </div>
           <div className="flex items-center space-x-2 md:space-x-4">
@@ -1468,7 +1481,527 @@ function ResidentDashboard({ user, requests, households, officials, onLogout, sh
               </div>
             </div>
           )}
+          {activeTab === 'about' && (
+            <AboutPage />
+          )}
         </main>
+      </div>
+    </div>
+  );
+}
+
+const CERTIFICATES = [
+  {
+    type: "Certificate of Indigency",
+    icon: "🏠",
+    color: "blue",
+    purpose: "Certifies that a resident belongs to a low-income or indigent family.",
+    uses: ["Free legal aid / PAO assistance", "Hospital & medical fee reduction", "Scholarship applications", "Government financial assistance programs"],
+    requirements: ["Valid ID (any government-issued)", "Proof of residency (utility bill or cedula)", "Accomplished request form"]
+  },
+  {
+    type: "Certificate of First Time Job Seeker",
+    icon: "💼",
+    color: "emerald",
+    purpose: "Issued to first-time job applicants under RA 11261 to exempt them from paying fees.",
+    uses: ["NBI Clearance (fee exemption)", "Police Clearance (fee exemption)", "Civil Service Exam (fee exemption)", "Other government fees waiver"],
+    requirements: ["Valid ID or PSA Birth Certificate", "Proof of no previous employment (affidavit or sworn statement)", "Accomplished request form"]
+  },
+  {
+    type: "Certificate of Barangay Clearance",
+    icon: "✅",
+    color: "violet",
+    purpose: "Confirms that a resident has no derogatory records within the barangay.",
+    uses: ["Employment requirements", "Loan applications", "Rental/housing requirements", "General legal transactions"],
+    requirements: ["Valid government-issued ID", "Community Tax Certificate (Cedula)", "Proof of residency", "Accomplished request form"]
+  },
+  {
+    type: "Certificate of Business Permit/Clearance",
+    icon: "🏪",
+    color: "amber",
+    purpose: "Required for businesses operating within the barangay before securing a Mayor's Permit.",
+    uses: ["Business registration with LGU", "Annual business permit renewal", "DTI/SEC registration support"],
+    requirements: ["Valid ID of business owner", "Business name & description", "Location/address of business", "Accomplished request form"]
+  },
+  {
+    type: "Certificate of Residency",
+    icon: "🏡",
+    color: "rose",
+    purpose: "Confirms that a person is an official resident of Barangay San Isidro.",
+    uses: ["School enrollment & transfer", "Bank account opening", "Government benefit applications", "General proof of address"],
+    requirements: ["Valid government-issued ID", "Proof of address (utility bill, lease contract)", "Accomplished request form"]
+  }
+];
+ 
+const COLOR_MAP = {
+  blue:    { bg: "bg-blue-50",    border: "border-blue-200",   text: "text-blue-700",   badge: "bg-blue-100 text-blue-700",   dot: "bg-blue-500",   ring: "ring-blue-200"   },
+  emerald: { bg: "bg-emerald-50", border: "border-emerald-200",text: "text-emerald-700",badge: "bg-emerald-100 text-emerald-700",dot:"bg-emerald-500",ring: "ring-emerald-200"},
+  violet:  { bg: "bg-violet-50",  border: "border-violet-200", text: "text-violet-700", badge: "bg-violet-100 text-violet-700", dot: "bg-violet-500",  ring: "ring-violet-200"  },
+  amber:   { bg: "bg-amber-50",   border: "border-amber-200",  text: "text-amber-700",  badge: "bg-amber-100 text-amber-700",  dot: "bg-amber-500",   ring: "ring-amber-200"   },
+  rose:    { bg: "bg-rose-50",    border: "border-rose-200",   text: "text-rose-700",   badge: "bg-rose-100 text-rose-700",    dot: "bg-rose-500",    ring: "ring-rose-200"    },
+};
+ 
+const PROCEDURE_STEPS = [
+  { step: "01", title: "Log In & Request", desc: "Sign in to your account and go to 'Request Documents'. Fill out the form with your document type, personal details, and purpose.", icon: FileText },
+  { step: "02", title: "Submit Request", desc: "Click 'Submit Request'. Your application is instantly recorded and marked as Pending in our system.", icon: CheckCircle },
+  { step: "03", title: "Processing", desc: "Barangay staff reviews and processes your request. You can monitor the status in 'My Requests' anytime.", icon: Clock },
+  { step: "04", title: "Notification", desc: "Once your document is approved, check 'My Requests' for the status update and admin message.", icon: AlertCircle },
+  { step: "05", title: "Claim Document", desc: "Visit the Barangay Hall during office hours with a valid ID. Present your request reference to claim your document.", icon: Award },
+];
+ 
+const TIPS = [
+  { icon: "📋", title: "Prepare All Requirements in Advance", desc: "Gather all required documents before visiting the barangay hall to avoid delays. Keep digital or physical copies of your valid IDs and supporting documents." },
+  { icon: "⏰", title: "Visit During Office Hours", desc: "The barangay hall is open Monday to Friday, 8:00 AM – 5:00 PM. Avoid peak hours (10 AM–12 PM & 2–4 PM) for faster service." },
+  { icon: "📱", title: "Check the System for Updates", desc: "Use this portal to monitor your request status in real time. You'll see admin messages under 'My Requests' so you always know what's happening." },
+  { icon: "✍️", title: "Fill Out Forms Accurately", desc: "Ensure all information matches your official IDs. Mismatched names or dates can delay or invalidate your certificate." },
+];
+ 
+const KEY_FEATURES = [
+  { icon: Users, label: "Resident Registration & Profiles" },
+  { icon: FileText, label: "Online Document Requests" },
+  { icon: Shield, label: "Household Records Management" },
+  { icon: CheckCircle, label: "Request Tracking & Status Updates" },
+  { icon: Award, label: "Barangay Officials Directory" },
+  { icon: Globe, label: "Special Groups Registry (PWD, 4Ps, Seniors, Voters)" },
+];
+ 
+const BENEFITS = [
+  { icon: "🚀", title: "Save Time", desc: "No more repeated trips to the barangay hall just to check your request status." },
+  { icon: "📊", title: "Full Transparency", desc: "Track every request in real time, with messages straight from barangay staff." },
+  { icon: "🔒", title: "Secure Records", desc: "Your personal data is stored safely on a private, authenticated cloud database." },
+  { icon: "📲", title: "Accessible Anywhere", desc: "Access your records and request documents from any device, anytime, anywhere." },
+  { icon: "🏘️", title: "Community Connected", desc: "Stay informed about barangay officials and community demographics." },
+  { icon: "✅", title: "Paperless & Efficient", desc: "Reduce paperwork and streamline barangay operations for everyone." },
+];
+ 
+// ─── SUB-COMPONENTS ───────────────────────────────────────────────────────────
+ 
+function SectionHeader({ icon: Icon, label, title, subtitle, color = "blue" }) {
+  return (
+    <div className="mb-8">
+      <div className={`inline-flex items-center space-x-2 px-3 py-1.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest mb-3 bg-${color}-100 text-${color}-700 border border-${color}-200`}>
+        <Icon className="w-3.5 h-3.5" />
+        <span>{label}</span>
+      </div>
+      <h2 className="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight">{title}</h2>
+      {subtitle && <p className="text-slate-500 mt-2 font-medium text-sm md:text-base max-w-2xl">{subtitle}</p>}
+    </div>
+  );
+}
+ 
+function CertCard({ cert }) {
+  const [open, setOpen] = useState(false);
+  const c = COLOR_MAP[cert.color];
+  return (
+    <div className={`bg-white rounded-2xl border ${c.border} shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md`}>
+      <button
+        onClick={() => setOpen(!open)}
+        className={`w-full text-left p-5 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors`}
+      >
+        <div className="flex items-center space-x-3">
+          <div className={`w-10 h-10 ${c.bg} rounded-xl flex items-center justify-center text-xl flex-shrink-0 shadow-sm`}>{cert.icon}</div>
+          <div>
+            <p className="font-extrabold text-slate-800 text-sm leading-tight">{cert.type}</p>
+            <p className={`text-[10px] font-bold uppercase tracking-widest ${c.text} mt-0.5`}>Tap to expand</p>
+          </div>
+        </div>
+        <div className={`w-7 h-7 ${c.bg} ${c.text} rounded-lg flex items-center justify-center flex-shrink-0 ml-3`}>
+          {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        </div>
+      </button>
+ 
+      {open && (
+        <div className={`px-5 pb-6 border-t ${c.border} bg-white animate-in slide-in-from-top-2 duration-200`}>
+          <div className="pt-4 space-y-4">
+            <div className={`p-3.5 ${c.bg} rounded-xl border ${c.border}`}>
+              <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-1">Purpose</p>
+              <p className="text-sm font-semibold text-slate-700 leading-relaxed">{cert.purpose}</p>
+            </div>
+ 
+            <div>
+              <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-2.5">Common Uses</p>
+              <div className="space-y-1.5">
+                {cert.uses.map((u, i) => (
+                  <div key={i} className="flex items-start space-x-2">
+                    <div className={`w-1.5 h-1.5 rounded-full ${c.dot} flex-shrink-0 mt-1.5`} />
+                    <p className="text-sm font-medium text-slate-600">{u}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+ 
+            <div>
+              <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-2.5">Requirements</p>
+              <div className="space-y-1.5">
+                {cert.requirements.map((r, i) => (
+                  <div key={i} className="flex items-start space-x-2">
+                    <CheckCircle className={`w-3.5 h-3.5 flex-shrink-0 mt-0.5 ${c.text}`} />
+                    <p className="text-sm font-medium text-slate-600">{r}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+ 
+function MapEmbed() {
+  return (
+    <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm h-56 w-full relative bg-slate-100">
+      {/* Embedded Google Maps iframe for Gigaquit, Surigao del Norte */}
+      <iframe
+        title="Barangay San Isidro Location"
+        width="100%"
+        height="100%"
+        style={{ border: 0 }}
+        loading="lazy"
+        allowFullScreen
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31417.63!2d125.6697!3d9.3447!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3302c4fef5e5a44d%3A0x1234!2sGigaquit%2C%20Surigao%20del%20Norte!5e0!3m2!1sen!2sph!4v1680000000000"
+      />
+      <div className="absolute bottom-3 right-3">
+        <a
+          href="https://maps.google.com/?q=Gigaquit,Surigao+del+Norte,Philippines"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center space-x-1.5 bg-white px-3 py-1.5 rounded-lg shadow-md text-xs font-bold text-blue-700 border border-blue-100 hover:bg-blue-50 transition-colors"
+        >
+          <ExternalLink className="w-3.5 h-3.5" />
+          <span>Open in Maps</span>
+        </a>
+      </div>
+    </div>
+  );
+}
+ 
+// ─── MAIN ABOUT PAGE ─────────────────────────────────────────────────────────
+ 
+function AboutPage() {
+  const [mapVisible, setMapVisible] = useState(false);
+ 
+  return (
+    <div className="max-w-5xl mx-auto animate-in fade-in duration-300 space-y-10 pb-16">
+ 
+      {/* ── HERO BANNER ── */}
+      <div className="relative bg-gradient-to-br from-[#0f172a] via-[#1e3a8a] to-[#1d4ed8] rounded-2xl overflow-hidden p-8 md:p-12 text-white shadow-xl">
+        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
+        <div className="relative z-10">
+          <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-[10px] font-extrabold uppercase tracking-widest mb-4 backdrop-blur-sm">
+            <Info className="w-3.5 h-3.5" />
+            <span>About This Portal</span>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight mb-3">
+            Barangay San Isidro<br />
+            <span className="text-blue-200">Records Management System</span>
+          </h1>
+          <p className="text-blue-100 font-medium text-sm md:text-base max-w-xl leading-relaxed">
+            A digital platform serving the residents of Barangay San Isidro, Gigaquit, Surigao del Norte — making records management secure, efficient, and community-focused.
+          </p>
+        </div>
+        {/* Decorative circles */}
+        <div className="absolute -top-8 -right-8 w-40 h-40 bg-blue-400/20 rounded-full blur-2xl" />
+        <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-blue-600/30 rounded-full blur-2xl" />
+      </div>
+ 
+ 
+      {/* ══════════════════════════════════════════════════════════════════
+          SECTION 1 — BARANGAY CERTIFICATES
+      ══════════════════════════════════════════════════════════════════ */}
+      <section className="bg-white/95 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+        <SectionHeader
+          icon={FileText}
+          label="Documents"
+          title="Types of Barangay Certificates"
+          subtitle="Learn about the documents you can request through this portal — their purpose, common uses, and what you need to prepare."
+          color="blue"
+        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {CERTIFICATES.map((cert) => (
+            <CertCard key={cert.type} cert={cert} />
+          ))}
+        </div>
+      </section>
+ 
+ 
+      {/* ══════════════════════════════════════════════════════════════════
+          SECTION 2 — HOW TO CLAIM
+      ══════════════════════════════════════════════════════════════════ */}
+      <section className="bg-white/95 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+        <SectionHeader
+          icon={BookOpen}
+          label="Step-by-Step Guide"
+          title="How to Request & Claim a Document"
+          subtitle="Follow these simple steps to request your barangay certificate through this system."
+          color="emerald"
+        />
+ 
+        <div className="relative">
+          {/* Vertical connector line */}
+          <div className="absolute left-[27px] top-8 bottom-8 w-0.5 bg-gradient-to-b from-blue-200 via-emerald-200 to-slate-100 hidden md:block" />
+ 
+          <div className="space-y-4">
+            {PROCEDURE_STEPS.map((s, i) => (
+              <div key={i} className="flex items-start space-x-4 group">
+                <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1e3a8a] to-[#1d4ed8] text-white flex flex-col items-center justify-center shadow-md shadow-blue-900/20 group-hover:-translate-y-0.5 transition-transform z-10">
+                  <s.icon className="w-4 h-4 mb-0.5" />
+                  <span className="text-[9px] font-extrabold tracking-widest opacity-70">{s.step}</span>
+                </div>
+                <div className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl p-4 group-hover:bg-white group-hover:border-blue-100 group-hover:shadow-sm transition-all">
+                  <p className="font-extrabold text-slate-800 text-sm mb-1">{s.title}</p>
+                  <p className="text-sm text-slate-500 font-medium leading-relaxed">{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+ 
+ 
+      {/* ══════════════════════════════════════════════════════════════════
+          SECTION 3 — TIPS FOR FASTER PROCESSING
+      ══════════════════════════════════════════════════════════════════ */}
+      <section className="bg-white/95 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+        <SectionHeader
+          icon={Lightbulb}
+          label="Pro Tips"
+          title="Tips for Faster Processing"
+          subtitle="Follow these best practices to ensure your documents are processed as quickly as possible."
+          color="amber"
+        />
+ 
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {TIPS.map((tip, i) => (
+            <div key={i} className="flex items-start space-x-4 p-5 bg-amber-50 border border-amber-100 rounded-2xl hover:shadow-sm hover:-translate-y-0.5 transition-all cursor-default">
+              <div className="text-2xl flex-shrink-0 w-10 h-10 flex items-center justify-center bg-white rounded-xl shadow-sm border border-amber-100">{tip.icon}</div>
+              <div>
+                <p className="font-extrabold text-slate-800 text-sm mb-1">{tip.title}</p>
+                <p className="text-sm text-slate-500 font-medium leading-relaxed">{tip.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+ 
+ 
+      {/* ══════════════════════════════════════════════════════════════════
+          SECTION 4 — ABOUT THE BARANGAY / VISION-MISSION-GOALS
+      ══════════════════════════════════════════════════════════════════ */}
+      <section className="bg-white/95 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+        <SectionHeader
+          icon={Building2}
+          label="About Us"
+          title="Barangay San Isidro"
+          subtitle="Gigaquit, Surigao del Norte"
+          color="violet"
+        />
+ 
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+          {[
+            {
+              icon: Eye,
+              label: "Vision",
+              color: "violet",
+              text: "A progressive, peaceful, and self-reliant Barangay San Isidro where every resident enjoys a high quality of life through effective governance, equitable access to services, and a united community."
+            },
+            {
+              icon: Target,
+              label: "Mission",
+              color: "blue",
+              text: "To deliver efficient, transparent, and accessible barangay services; to uphold the rights and welfare of every resident; and to foster a safe, healthy, and empowered community through inclusive and participatory governance."
+            },
+            {
+              icon: Star,
+              label: "Goals",
+              color: "emerald",
+              text: "Modernize barangay records and services; strengthen community health, education, and livelihood programs; ensure public safety and order; promote environmental protection; and sustain transparent and accountable local governance."
+            },
+          ].map((item, i) => {
+            const c = COLOR_MAP[item.color];
+            return (
+              <div key={i} className={`${c.bg} border ${c.border} rounded-2xl p-5 flex flex-col hover:shadow-md transition-all hover:-translate-y-0.5`}>
+                <div className={`w-10 h-10 bg-white rounded-xl flex items-center justify-center mb-4 shadow-sm border ${c.border}`}>
+                  <item.icon className={`w-5 h-5 ${c.text}`} />
+                </div>
+                <p className={`text-[10px] font-extrabold uppercase tracking-widest ${c.text} mb-2`}>{item.label}</p>
+                <p className="text-sm text-slate-600 font-medium leading-relaxed flex-1">{item.text}</p>
+              </div>
+            );
+          })}
+        </div>
+ 
+        {/* What is this system */}
+        <div className="bg-gradient-to-br from-[#0f172a] to-[#1e3a8a] text-white rounded-2xl p-6 md:p-8 mb-6 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-5 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
+          <div className="relative z-10">
+            <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-[10px] font-extrabold uppercase tracking-widest mb-4">
+              <Globe className="w-3.5 h-3.5" />
+              <span>What Is This System?</span>
+            </div>
+            <p className="text-blue-50 font-medium leading-relaxed text-sm md:text-base max-w-3xl">
+              The <span className="font-extrabold text-white">Barangay San Isidro Records Management System (RMS)</span> is an official digital platform developed to digitize, organize, and streamline barangay operations. It enables residents to register their personal information, request barangay documents online, track their request status in real time, and stay informed about their community — all through a single, easy-to-use portal accessible from any device.
+            </p>
+          </div>
+        </div>
+ 
+        {/* Four pillars */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+          {[
+            { icon: Lock, title: "Data Security & Privacy", color: "rose", desc: "All resident data is stored on a private, authenticated Firebase cloud database. Access is strictly controlled — only registered users can view their own data, and only authorized administrators can manage records. We are fully committed to protecting your personal information in compliance with the Data Privacy Act of the Philippines." },
+            { icon: Zap, title: "Efficiency & Accessibility", color: "blue", desc: "Say goodbye to long queues and repeated visits to the barangay hall. With this system, you can submit requests, check statuses, and update your information anytime, anywhere — on mobile, tablet, or desktop." },
+            { icon: Heart, title: "Community-Focused", color: "rose", desc: "Built specifically for the residents of Barangay San Isidro, this system reflects the barangay's commitment to inclusive, transparent, and participatory governance. Every feature is designed with the community's needs in mind." },
+            { icon: Globe, title: "Transparency & Accountability", color: "emerald", desc: "Barangay officials and staff can manage records, update request statuses, and communicate with residents through a secure admin dashboard — ensuring every transaction is traceable and transparent." },
+          ].map((item, i) => {
+            const c = COLOR_MAP[item.color];
+            return (
+              <div key={i} className={`p-5 border ${c.border} ${c.bg} rounded-2xl hover:shadow-sm transition-all`}>
+                <div className={`w-9 h-9 bg-white rounded-xl flex items-center justify-center mb-3 shadow-sm border ${c.border}`}>
+                  <item.icon className={`w-4.5 h-4.5 ${c.text}`} style={{ width: 18, height: 18 }} />
+                </div>
+                <p className="font-extrabold text-slate-800 text-sm mb-2">{item.title}</p>
+                <p className="text-sm text-slate-500 font-medium leading-relaxed">{item.desc}</p>
+              </div>
+            );
+          })}
+        </div>
+ 
+        {/* Key Features */}
+        <div className="mb-8">
+          <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-4">Key Features</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            {KEY_FEATURES.map((f, i) => (
+              <div key={i} className="flex items-center space-x-3 bg-slate-50 border border-slate-200 rounded-xl p-3.5 hover:bg-white hover:border-blue-200 hover:shadow-sm transition-all cursor-default">
+                <div className="w-8 h-8 bg-[#1e3a8a] rounded-lg flex items-center justify-center flex-shrink-0">
+                  <f.icon className="w-4 h-4 text-white" />
+                </div>
+                <p className="text-sm font-bold text-slate-700">{f.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+ 
+        {/* Benefits */}
+        <div>
+          <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-4">Benefits for Residents</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {BENEFITS.map((b, i) => (
+              <div key={i} className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
+                <div className="text-2xl mb-2">{b.icon}</div>
+                <p className="font-extrabold text-slate-800 text-sm mb-1">{b.title}</p>
+                <p className="text-xs text-slate-500 font-medium leading-relaxed">{b.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+ 
+ 
+      {/* ══════════════════════════════════════════════════════════════════
+          SECTION 5 — CONTACT INFORMATION
+      ══════════════════════════════════════════════════════════════════ */}
+      <section className="bg-white/95 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+        <SectionHeader
+          icon={Phone}
+          label="Contact Us"
+          title="Get in Touch"
+          subtitle="We're here to help. Reach out to the Barangay San Isidro Hall for any concerns or assistance."
+          color="blue"
+        />
+ 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Official Address */}
+          <div>
+            <button
+              onClick={() => setMapVisible(!mapVisible)}
+              className="w-full flex items-start space-x-4 p-5 bg-blue-50 border border-blue-200 rounded-2xl hover:bg-blue-100 hover:shadow-sm transition-all cursor-pointer text-left group mb-4"
+            >
+              <div className="w-11 h-11 bg-[#1e3a8a] rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm group-hover:-translate-y-0.5 transition-transform">
+                <MapPin className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-[10px] font-extrabold uppercase tracking-widest text-blue-400 mb-1">Official Address</p>
+                <p className="font-extrabold text-slate-800 text-sm leading-snug">Barangay San Isidro Hall</p>
+                <p className="text-sm font-medium text-slate-500">Gigaquit, Surigao del Norte, Philippines</p>
+                <div className="flex items-center space-x-1 mt-2">
+                  <span className={`text-[10px] font-bold text-blue-600 bg-white px-2 py-0.5 rounded-md border border-blue-200`}>
+                    {mapVisible ? "Hide Map" : "View on Map →"}
+                  </span>
+                </div>
+              </div>
+            </button>
+            {mapVisible && (
+              <div className="animate-in slide-in-from-top-2 duration-300">
+                <iframe 
+                  // 1. Paste your Google Maps embed link inside the quotes below:
+                  src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d405.34870670355235!2d125.68286199978336!3d9.562485648500896!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1sen!2sph!4v1779037537149!5m2!1sen!2sph" 
+                  width="100%" 
+                  height="100%" 
+                  style={{ border: 0 }} 
+                  allowFullScreen="" 
+                  loading="lazy" 
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            )}
+          </div>
+ 
+          {/* Office Hours & Follow Us */}
+          <div className="space-y-4">
+            <div className="flex items-start space-x-4 p-5 bg-emerald-50 border border-emerald-200 rounded-2xl">
+              <div className="w-11 h-11 bg-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                <Clock className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <p className="text-[10px] font-extrabold uppercase tracking-widest text-emerald-500 mb-2">Office Hours</p>
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-bold text-slate-700">Monday – Friday</span>
+                    <span className="text-sm font-extrabold text-emerald-700 bg-white px-2.5 py-0.5 rounded-lg border border-emerald-200">8:00 AM – 5:00 PM</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-bold text-slate-700">Saturday</span>
+                    <span className="text-sm font-extrabold text-amber-700 bg-white px-2.5 py-0.5 rounded-lg border border-amber-200">By appointment</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-bold text-slate-700">Sunday & Holidays</span>
+                    <span className="text-sm font-extrabold text-rose-600 bg-white px-2.5 py-0.5 rounded-lg border border-rose-200">Closed</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+ 
+            <a
+              href="https://www.facebook.com/barangay.san.isidro.244635"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center space-x-4 p-5 bg-[#1877F2]/5 border border-[#1877F2]/20 rounded-2xl hover:bg-[#1877F2]/10 hover:border-[#1877F2]/40 hover:shadow-sm transition-all cursor-pointer group"
+            >
+              <div className="w-11 h-11 bg-[#1877F2] rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm group-hover:-translate-y-0.5 transition-transform">
+                <FacebookIcon className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-[10px] font-extrabold uppercase tracking-widest text-[#1877F2]/60 mb-1">Follow Us</p>
+                <p className="font-extrabold text-slate-800 text-sm">Official Facebook Page</p>
+                <p className="text-xs font-medium text-[#1877F2] mt-0.5 flex items-center">
+                  Brgy. San Isidro, Gigaquit <ExternalLink className="w-3 h-3 ml-1.5 opacity-70" />
+                </p>
+              </div>
+              <ArrowRight className="w-4 h-4 text-[#1877F2] opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+            </a>
+          </div>
+        </div>
+      </section>
+ 
+ 
+      {/* ── FOOTER NOTE ── */}
+      <div className="text-center py-4">
+        <p className="text-xs font-medium text-slate-400">
+          © {new Date().getFullYear()} Barangay San Isidro RMS, Gigaquit, Surigao del Norte. All rights reserved.
+        </p>
+        <p className="text-[10px] text-slate-300 mt-1 font-medium">
+          For concerns, please contact your barangay hall during office hours.
+        </p>
       </div>
     </div>
   );
