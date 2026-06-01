@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, UserPlus, Key, X, Loader2, AlertCircle, MapPin, Building2 } from 'lucide-react';
+import { Shield, UserPlus, Key, X, Loader2, AlertCircle, MapPin, Building2, Eye, EyeOff } from 'lucide-react';
 import { BRANDING, PUROKS, CIVIL_STATUSES, GENDERS, EDU_OPTIONS } from '../config/constants';
 import { FormInput, FormSelect, FloatingInput } from '../components/ui/Components';
 import { auth, db, appId } from '../config/firebase';
@@ -14,6 +14,8 @@ export default function LandingScreen() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // Added toggle state
+
   const [firstName, setFirstName] = useState('');
   const [middleName, setMiddleName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -113,6 +115,7 @@ export default function LandingScreen() {
     setError('');
     setEmail('');
     setPassword('');
+    setShowPassword(false);
   };
 
   return (
@@ -253,7 +256,26 @@ export default function LandingScreen() {
 
                 <div className="space-y-4 pt-2">
                   <FloatingInput id="email-input" label="Email Address" type="email" required value={email} onChange={e => setEmail(e.target.value)} />
-                  <FloatingInput id="password-input" label="Password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />
+                  
+                  {/* Eye Toggle Container Added Here! */}
+                  <div className="relative">
+                    <FloatingInput 
+                      id="password-input" 
+                      label="Password" 
+                      type={showPassword ? "text" : "password"} 
+                      required 
+                      value={password} 
+                      onChange={e => setPassword(e.target.value)} 
+                    />
+                    <button 
+                      type="button" 
+                      onClick={() => setShowPassword(!showPassword)} 
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 focus:outline-none p-1 cursor-pointer transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5"/> : <Eye className="w-5 h-5"/>}
+                    </button>
+                  </div>
+
                 </div>
 
                 <button disabled={isLoading} type="submit" className="cursor-pointer w-full bg-gradient-to-r from-blue-700 to-blue-500 hover:from-blue-800 hover:to-blue-600 disabled:opacity-70 text-white font-bold py-3.5 px-4 rounded-xl transition-all duration-200 mt-6 shadow-md shadow-blue-500/30 flex justify-center items-center hover:-translate-y-0.5">

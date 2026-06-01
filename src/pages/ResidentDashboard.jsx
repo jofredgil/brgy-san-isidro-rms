@@ -10,7 +10,7 @@ import AboutPage from './AboutPage';
 import {
   User, FileText, Clock, Building2, Info, LogOut, Menu, X, Calendar, 
   Pencil, Activity, CheckCircle, Accessibility, Loader2, MapPin, Send, 
-  Home, Shield, AlertCircle, PlusCircle
+  Home, Shield, AlertCircle, PlusCircle, Eye, EyeOff
 } from 'lucide-react';
 
 // ─── LOCAL UI COMPONENTS ──────────────────────────────────────────────────────
@@ -52,6 +52,10 @@ export default function ResidentDashboard({ user }) {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  // Password Visibility States
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
   // Local Toast State
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
   const toastTimeout = useRef(null);
@@ -78,8 +82,9 @@ export default function ResidentDashboard({ user }) {
   
   const { records: officialsList, loading: offLoading } = useOnDemandCollection(officialsQuery);
   const { records: households } = useOnDemandCollection(householdsQuery);
+  
   // Sort officials by rank, then alphabetically by name for ties (like Kagawads)
- const sortedOfficials = useMemo(() => {
+  const sortedOfficials = useMemo(() => {
     return [...officialsList].sort((a, b) => {
       const rankA = getPositionRank(a.position);
       const rankB = getPositionRank(b.position);
@@ -155,8 +160,6 @@ export default function ResidentDashboard({ user }) {
       };
 
       if (editForm.password) {
-        // Note: Realistically updating a Firebase Auth password requires re-authentication,
-        // but this updates the stored DB record placeholder if you are still syncing them.
         updateData.password = editForm.password;
       }
 
@@ -312,12 +315,16 @@ export default function ResidentDashboard({ user }) {
                 <div className="h-32 md:h-40 bg-gradient-to-r from-blue-800 to-blue-600 relative overflow-hidden">
                   <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-overlay"></div>
                 </div>
+                
                 <div className="px-4 md:px-8 pb-6 md:pb-10 relative">
-                  <div className="absolute -top-10 left-4 md:-top-12 md:left-8 bg-white p-1.5 rounded-full shadow-lg">
+                  
+                  {/* Fixed absolute avatar positioning and added z-10 */}
+                  <div className="absolute -top-12 md:-top-16 left-4 md:left-8 bg-white p-1.5 rounded-full shadow-lg border border-slate-100 z-10">
                     <InitialsAvatar name={user.profile.name || ''} size="2xl" />
                   </div>
 
-                  <div className="pt-12 md:pt-16">
+                  {/* Safely pushed the container down with pt-20 to clear the avatar on mobile */}
+                  <div className="pt-20 sm:pt-24 md:pt-28">
                     {isEditingProfile ? (
                       <form onSubmit={handleUpdateProfile} className="space-y-6 max-w-3xl animate-in fade-in duration-300">
                         <h2 className="text-xl font-bold text-slate-800 mb-4 border-b pb-2">Edit My Information</h2>
@@ -356,9 +363,26 @@ export default function ResidentDashboard({ user }) {
                           </div>
                           
                           <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-                            <div className="sm:col-span-2"><h4 className="text-sm font-bold text-slate-700 mb-1">Account Security</h4><p className="text-xs text-slate-500 mb-2">Update your login password securely.</p></div>
-                            <FormInput label="New Password" type="password" value={editForm.password} onChange={e => setEditForm({ ...editForm, password: e.target.value })} className="w-full p-3 bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Leave blank to keep current" />
-                            <FormInput label="Confirm Password" type="password" value={editForm.confirmPassword} onChange={e => setEditForm({ ...editForm, confirmPassword: e.target.value })} className="w-full p-3 bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Leave blank to keep current" />
+                            <div className="sm:col-span-2">
+                              <h4 className="text-sm font-bold text-slate-700 mb-1">Account Security</h4>
+                              <p className="text-xs text-slate-500 mb-2">Update your login password securely.</p>
+                            </div>
+                            
+                            {/* Added Eye Icon for New Password */}
+                            <div className="relative">
+                              <FormInput label="New Password" type={showPassword ? "text" : "password"} value={editForm.password} onChange={e => setEditForm({ ...editForm, password: e.target.value })} style={{ paddingRight: '2.5rem' }} placeholder="Leave blank to keep current" />
+                              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 bottom-2.5 text-slate-400 hover:text-blue-600 focus:outline-none p-1 cursor-pointer">
+                                {showPassword ? <EyeOff className="w-4 h-4"/> : <Eye className="w-4 h-4"/>}
+                              </button>
+                            </div>
+                            
+                            {/* Added Eye Icon for Confirm Password */}
+                            <div className="relative">
+                              <FormInput label="Confirm Password" type={showConfirmPassword ? "text" : "password"} value={editForm.confirmPassword} onChange={e => setEditForm({ ...editForm, confirmPassword: e.target.value })} style={{ paddingRight: '2.5rem' }} placeholder="Leave blank to keep current" />
+                              <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 bottom-2.5 text-slate-400 hover:text-blue-600 focus:outline-none p-1 cursor-pointer">
+                                {showConfirmPassword ? <EyeOff className="w-4 h-4"/> : <Eye className="w-4 h-4"/>}
+                              </button>
+                            </div>
                           </div>
                         </div>
 
@@ -369,7 +393,7 @@ export default function ResidentDashboard({ user }) {
                       </form>
                     ) : (
                       <div className="animate-in fade-in duration-300">
-                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start pt-4 sm:pt-8">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
                           <div>
                             <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#0f172a] uppercase tracking-tight mb-2">{user.profile.name}</h2>
                             <p className="text-sm text-slate-500 font-medium">{user.profile.address || 'Purok N/A'} • {user.profile.civilStatus || 'Single'} • {user.profile.age} years old</p>
@@ -543,7 +567,7 @@ export default function ResidentDashboard({ user }) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {offLoading ? (
                     <div className="col-span-3 text-center py-12"><Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-500" /></div>
-                  ) : officialsList.length === 0 ? (
+                  ) : sortedOfficials.length === 0 ? (
                     <div className="col-span-3 text-center py-12 text-slate-400 font-medium bg-white/80 rounded-3xl">No officials recorded.</div>
                   ) : sortedOfficials.map(official => (
                     <div key={official.id} className="bg-white/95 backdrop-blur-sm rounded-3xl p-8 shadow-sm border border-slate-200/60 text-center hover:-translate-y-1 transition-transform hover:shadow-lg">
